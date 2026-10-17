@@ -83,3 +83,31 @@ AsernetBrain/
 - **Segreti e Database:**
   - Nessuna chiave API o credenziale dei clienti va mai scritta nei file markdown o committata: vive solo in `.env` (globale o locale al cliente, escluso da `.gitignore`).
   - I file SQLite (`*.db`) vivono in locale o sulla VPS e sono esclusi dal repository Git per mantenere il repo leggerissimo.
+
+---
+
+## 4. Risoluzione Proattiva e Query Router (Zero-Friction, stile FullBrain)
+
+> **Regola fondamentale:** L'utente **NON è mai obbligato** a lanciare `/prime` né a spostarsi con `cd` dentro `clients/<slug>/` prima di fare una domanda o invocare un comando su un cliente, un dominio tecnico o una procedura aziendale.
+
+### 4.1 Auto-Risoluzione del Cliente da qualsiasi cartella
+Quando l'utente nomina un cliente (in chat libera o in comandi come `/client-brief`, `/debrief`, `/challenge`, `/contribuisci`, `/rivedi-proposte`, `aios`, `datapyx`), anche se si trova nella radice di `AsernetBrain` o in un'altra sottocartella e **non ha eseguito `/prime`**:
+1. **Individua lo `<slug>` del cliente** cercando in `clients/index.md` oppure interrogando il server MCP locale `qmd-asernet` (`-c asernet-clients`).
+2. **Carica al volo il contesto del cliente** da `clients/<slug>/`:
+   - `index.md` (contesto stabile, stack, brand, lezioni)
+   - `state.md` (stato volatile, priorità aperte)
+   - `purpose.md` (diagnosi DataPyx, obiettivi, decisioni e `/challenge`)
+   - `key-metrics.md` (se presente, generato da DataOS)
+   - `log.md` e `data/database.db` (se pertinenti alla richiesta)
+3. **Non bloccare mai l'utente** chiedendo di eseguire `/prime` o cercando la vecchia cartella single-tenant `.claude/context/`: in `AsernetBrain` il contesto di ogni cliente vive in `clients/<slug>/`.
+
+### 4.2 Query Router Automatico (QMD Locale `--index asernetbrain`)
+Ogni volta che l'utente pone una domanda su clienti, procedure aziendali o tecnologia, classifica la richiesta e interroga proattivamente `qmd-asernet` (o via CLI `qmd --index asernetbrain query ...`):
+
+| Tipo di richiesta | Strategia QMD | Collection (`-c`) | Fallback / Letture dirette |
+|---|---|---|---|
+| Domanda su un cliente, progetto, stato, call, metriche | `lex` + `vec` | `-c asernet-clients` | `clients/index.md` → `clients/<slug>/{index.md,state.md,purpose.md,key-metrics.md}` |
+| Procedura interna, SOP, prodotto, partner | `lex` o `vec` | `-c asernet-wiki` | `wiki/index.md` → `wiki/concepts/`, `wiki/entities/`, `wiki/sources/` |
+| Dominio tecnico verticale (networking, dev, AI, marketing) | `vec` | `-c asernet-topics` | `topics/index.md` → `topics/<dominio>/` |
+| Domanda trasversale (es. "quali clienti usano X?") | `lex` + `vec` | *(nessun flag `-c`)* | `clients/index.md` + `wiki/index.md` |
+

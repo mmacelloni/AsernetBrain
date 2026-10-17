@@ -9,19 +9,21 @@ allowed-tools: Read, Glob, Grep, Bash
 
 Domanda: `$ARGUMENTS`
 
-## 1. Precondizione di Sincronizzazione
-Assicurati che il vault sia stato sincronizzato in questa sessione (`/prime` o `vault_sync`). Su un vault non sincronizzato rischieresti di dichiarare scoperto un argomento che un collega ha già documentato.
+## 1. Zero-Friction (Nessun blocco su `/prime`)
+Non bloccare mai l'utente se non ha eseguito `/prime` in questa sessione:
+- Se necessario e disponibile, esegui un rapido `vault_sync` (o `git pull --ff-only` silenzioso) in autonomia, oppure procedi direttamente alla ricerca locale.
+- Se la domanda riguarda un **cliente**, risolvilo automaticamente tramite `qmd-asernet` (`-c asernet-clients`) e `clients/index.md`, caricando direttamente i file in `clients/<slug>/` (`index.md`, `state.md`, `purpose.md`, `key-metrics.md`, `log.md`).
 
-## 2. Procedura di Ricerca (QMD Locale + Index)
+## 2. Procedura di Ricerca (Query Router QMD Locale + Index)
 
 1. **Ricerca ibrida locale con QMD (`--index asernetbrain`):**
    - Usa gli strumenti del server MCP **`qmd-asernet`** (oppure via CLI `qmd --index asernetbrain query "<domanda>" --json -n 8`) scegliendo la collection più adatta:
+     - `asernet-clients` → schede clienti, stato, diagnosi DataPyx, contatti, progetti, storico (`clients/`)
      - `asernet-wiki` → procedure aziendali, SOP, prodotti, concetti (`wiki/`)
-     - `asernet-clients` → schede clienti, stato, diagnosi DataPyx, storico (`clients/`)
      - `asernet-topics` → domini tecnici verticali (`topics/`)
      - *(nessun filtro `-c` per domande trasversali)*
 2. **Fallback strutturale:**
-   - Se lo score di QMD è basso (`< 0.3`) o per navigazione panoramica, leggi `wiki/index.md` e `clients/index.md`.
+   - Se lo score di QMD è basso (`< 0.3`) o per navigazione panoramica, leggi `clients/index.md`, `wiki/index.md` o `topics/index.md`.
 3. **Lettura mirata:**
    - Apri **solo** le pagine rilevanti (massimo 6 pagine; se la domanda è troppo ampia, chiedi di restringerla).
 

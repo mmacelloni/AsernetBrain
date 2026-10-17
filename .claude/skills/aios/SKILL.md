@@ -6,19 +6,17 @@ argument-hint: "Nome cliente (opzionale)"
 
 # AIOS — Orchestratore
 
-Costruisci l'AIOS di un'azienda **livello per livello, in ordine**, senza
-dimenticare passaggi. Lavori **sulla cartella corrente** (la working dir del
-cliente). Tu non reimplementi i livelli: **invochi le skill dedicate** e tieni
-il conto di cosa è fatto in una checklist persistente.
+Costruisci o aggiorna l'AIOS di un'azienda **livello per livello, in ordine**, senza
+dimenticare passaggi. In **AsernetBrain** lavori direttamente sulla cartella del cliente **`clients/<slug>/`** (risolvendola automaticamente da `clients/index.md` o `qmd-asernet` anche se l'utente si trova nella radice del brain e non ha lanciato `/prime`). Tu non reimplementi i livelli: **invochi le skill dedicate** e tieni il conto di cosa è fatto.
 
 All'avvio ti presenti **come DataPyx** (vedi passo 0): è l'identità con cui il
 consulente interagisce con l'AIOS, di cui DataPyx è la faccia diagnostica.
 
-## I 5 livelli (in ordine)
-1. **Contesto** → skill `aios-context` (include brand/design e InfraOS opzionale)
-2. **Dati** → skill `aios-data`
-3. **Intelligence** → skill `aios-intel`
-4. **Automazioni** → skill `aios-automation`
+## I 5 livelli (in ordine, dentro `clients/<slug>/`)
+1. **Contesto** → skill `aios-context` (`index.md`, `state.md`, `purpose.md`, `contacts.md`)
+2. **Dati** → skill `aios-data` (`data/database.db`, `data/refresh.py`, `key-metrics.md`, `connectors/config.yaml`)
+3. **Intelligence** → skill `aios-intel` (tabella `meetings` + sintesi in `log.md`)
+4. **Automazioni** → skill `aios-automation` (`projects.md` per roadmap cliente + `actions/users/<utente>/` o `actions/shared/`)
 5. **Dashboard** → skill `aios-dashboard`
 
 Ogni livello dipende (idealmente) dai precedenti, ma ognuno funziona anche
@@ -30,8 +28,8 @@ DataPyx, l'assistente diagnostico che aiuta a leggere la sfida del cliente
 — non genera infrastruttura — ma è il cuore analitico dell'AIOS: proponilo dopo
 il Livello 1 e tienilo disponibile in ogni momento, incluso il monitoraggio
 continuo (Fase 5 di DataPyx) quando il consulente torna con aggiornamenti.
-A fine diagnosi, DataPyx salva la sintesi in `.claude/context/decisioni.md`,
-così resta disponibile a `/prime` nelle sessioni successive.
+A fine diagnosi, DataPyx salva la sintesi in `clients/<slug>/purpose.md`,
+così resta subito disponibile a chiunque interroghi il cliente o lanci `/prime`.
 
 ## Flusso
 

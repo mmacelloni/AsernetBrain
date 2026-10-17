@@ -9,15 +9,12 @@ stato aggiornato e non da dove eravamo ieri. Rispondi in italiano.
 
 Nota libera dell'utente (se presente): **$ARGUMENTS**
 
-## 1. Carica lo stato attuale (silenzioso)
-Prima di chiedere, leggi cosa esiste nella working dir per fare domande mirate,
-non generiche:
-- `.claude/context/` — chi è l'azienda, strategia, stato clienti/progetti, numeri;
-- `history.md` — le ultime entry (cos'era in sospeso ieri);
-- `data/database.db` — se presente, lo stato di pipeline/clienti;
-- eventuali `automations/roadmap.md`.
-Se manca `.claude/context/`, avvisa che il debrief sarà più povero e chiedi se
-procedere lo stesso.
+## 1. Individua il cliente e carica lo stato attuale (silenzioso, anche senza `/prime`)
+- Se l'utente ha indicato il cliente in `$ARGUMENTS` o ne stavate parlando nella conversazione, risolvi subito `clients/<slug>/` tramite `clients/index.md` o `qmd-asernet` (`-c asernet-clients`). Se non è chiaro su quale cliente fare il debrief, chiedi solo il nome del cliente.
+- Prima di fare domande, leggi in `clients/<slug>/`:
+  - `index.md` (contesto stabile), `state.md` (priorità e pendenze attuali), `purpose.md` (diagnosi e decisioni), `projects.md`;
+  - `log.md` — le ultime entry (cos'era in sospeso);
+  - `key-metrics.md` e `data/database.db` — se presenti.
 
 ## 2. Intervista di debrief — UNA domanda alla volta
 Non aspettare che l'utente racconti: **fai tu le domande**, mirate sullo stato che
@@ -41,15 +38,10 @@ Prima di toccare qualsiasi file, mostra **cosa hai capito** e **l'elenco preciso
 delle modifiche** che stai per fare (quali file, quali righe/valori). Ottieni
 conferma. Non riscrivere interi file: aggiorna solo ciò che è cambiato.
 
-## 4. Aggiorna l'AIOS
+## 4. Aggiorna la scheda del cliente in `clients/<slug>/`
 Dopo conferma:
-- **`history.md`** — appendi una entry datata (`## [YYYY-MM-DD] debrief`) con:
-  avanzamenti, decisioni, azioni aperte. Append-only: non modificare entry
-  precedenti. Se `history.md` non esiste (InfraOS non attivo), proponi di crearlo.
-- **File di stato in `.claude/context/`** — aggiorna quelli pertinenti (es.
-  `dati-correnti.md`, stato clienti/progetti) con i nuovi fatti. **Non** toccare
-  `key-metrics.md` (è autogenerato da `/refresh-data`): se sono cambiati i numeri
-  di sorgente, ricorda all'utente di lanciare `/refresh-data`.
+- **`clients/<slug>/log.md`** (e una riga sintetica in **`clients/log.md`**) — appendi in cima una entry datata (`## [YYYY-MM-DD] debrief | <utente>`) con: avanzamenti, decisioni, azioni aperte. Append-only: non modificare entry precedenti.
+- **`clients/<slug>/state.md`**, **`purpose.md`** o **`projects.md`** — aggiorna quelli pertinenti con i nuovi fatti. **Non** toccare `clients/<slug>/key-metrics.md` (è autogenerato da `refresh.py`): se sono cambiati i numeri di sorgente, ricorda all'utente di rigenerare le metriche.
 
 ## 5. Chiusura
 - Riepiloga in 3 righe cosa hai registrato.
