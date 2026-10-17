@@ -34,7 +34,8 @@ Cosa fa `tools/setup.js` in automatico sulla macchina del collega:
 AsernetBrain/
 ├── CLAUDE.md                   # Costituzione globale + Query Router Zero-Friction
 ├── _meta/
-│   └── authors.md              # Registro identità aziendali (marco, sara, anna) + agenti
+│   ├── authors.md              # Registro identità aziendali (marco, sara, anna) + agenti
+│   └── roadmap-evoluzioni.md   # Evoluzioni future (es. DB condiviso su piattaforma per dati tabellari)
 ├── raw/                        # [SOLO LOCALE, ignorata da Git] Fonti grezze mai cancellate
 │   ├── wiki/                   # Documenti grezzi per la wiki
 │   └── clients/<slug>/         # Documenti grezzi per cliente (tracciati via provenance)

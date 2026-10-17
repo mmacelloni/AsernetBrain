@@ -1,15 +1,40 @@
 # Configurazione Connettori Dati Esterni del Cliente
-# NOTA: Nessuna password o API key va inserita qui!
-# Le credenziali vivono in .env (es. CLIENT_<SLUG>_API_KEY) o sul server VPS / n8n.
+# NOTA: Nessuna password, chiave JSON o API key va inserita qui!
+# Le credenziali vivono esclusivamente in .env (es. CLIENT_<SLUG>_BQ_CREDENTIALS).
 
 client_slug: "_template"
 database_path: "data/database.db"
 metrics_output: "key-metrics.md"
+deroghe_invio_automatico: []
 
 sources:
-  # Esempio 1: CRM / ERP (PerfexCRM, FattureInCloud, Shopify, ecc.)
+  # 1. Google BigQuery (Sorgente primaria preconfigurata per i clienti: GA4, GSC, Ads, E-commerce)
+  - id: "bigquery_cliente"
+    type: "bigquery"
+    scope: "lettura"
+    enabled: false
+    script: "connectors/bigquery_queries.py"
+    env_prefix: "CLIENT_TEMPLATE_BQ_"
+    schedule: "on_demand"
+    tables:
+      - "ga4_summary"
+      - "gsc_queries"
+      - "ads_performance"
+
+  # 2. Export SEO / Screaming Frog (da raw/clients/<slug>/)
+  - id: "seo_screamingfrog"
+    type: "csv"
+    scope: "lettura"
+    enabled: false
+    script: "connectors/seo_crawl.py"
+    schedule: "on_demand"
+    tables:
+      - "sf_urls"
+
+  # 3. CRM / Gestionale (PerfexCRM, FattureInCloud, Shopify, ecc.)
   - id: "crm_principale"
-    type: "api" # api | google_sheet | mysql | csv | n8n_webhook
+    type: "api"
+    scope: "lettura"
     enabled: false
     script: "connectors/crm.py"
     env_prefix: "CLIENT_TEMPLATE_CRM_"
@@ -17,13 +42,3 @@ sources:
     tables:
       - "leads"
       - "invoices"
-
-  # Esempio 2: Google Sheet / Analytics
-  - id: "kpi_sheet"
-    type: "google_sheet"
-    enabled: false
-    script: "connectors/sheets.py"
-    env_prefix: "CLIENT_TEMPLATE_SHEETS_"
-    schedule: "on_demand"
-    tables:
-      - "monthly_kpi"
