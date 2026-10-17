@@ -1,0 +1,9 @@
+{
+  "name": "asernet-brain",
+  "version": "1.0.0",
+  "description": "AsernetBrain — Sistema Operativo Aziendale Condiviso (fusione AIOS-Datapyx 0.7.1 + AsernetOS 1.3.0 + FullBrain).",
+  "repository": "AsernetBrain",
+  "author": {
+    "name": "Marco Macelloni — Asernet Srl"
+  }
+}
