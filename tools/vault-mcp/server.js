@@ -543,7 +543,28 @@ function vaultSync() {
   if (report.received.index_and_log.some((p) => p.endsWith('index.md'))) {
     report.note_lint = 'Sono arrivati degli index.md: potrebbe servire /lint per rigenerarli.';
   }
+  report.qmd_update = qmdAutoUpdate();
   return report;
+}
+
+/**
+ * Aggiorna in automatico l'indice locale QMD (`--index asernetbrain`) della
+ * macchina del collega dopo un `vault_sync` o un `vault_publish`. Non blocca
+ * mai l'operazione Git se `qmd` non è ancora installato.
+ */
+function qmdAutoUpdate() {
+  try {
+    const cmd = process.platform === 'win32' ? 'qmd.cmd' : 'qmd';
+    execFileSync(cmd, ['--index', 'asernetbrain', 'update'], {
+      cwd: VAULT_PATH,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: 30000,
+    });
+    return 'ok';
+  } catch {
+    return 'skipped (qmd non trovato o indice non ancora inizializzato con setup)';
+  }
 }
 
 /**
@@ -637,6 +658,7 @@ function vaultPublish({ files, message, confirm_overlap }) {
         identity: email,
         files: L,
         stderr: push.stderr,
+        qmd_update: qmdAutoUpdate(),
         message:
           'Il commit è fatto ed è integro: la verifica L ∩ R è passata, i file sono dentro, ' +
           'la firma è tua. Manca solo il push, perché da qui la rete verso il remoto non c\'è. ' +
@@ -653,6 +675,7 @@ function vaultPublish({ files, message, confirm_overlap }) {
     commit: sha,
     identity: email,
     files: L,
+    qmd_update: qmdAutoUpdate(),
     message: String(message),
   };
 }

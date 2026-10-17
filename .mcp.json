@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "vault-asernet": {
+      "command": "node",
+      "args": ["tools/vault-mcp/server.js"]
+    },
+    "qmd-asernet": {
+      "command": "qmd",
+      "args": ["mcp", "--index", "asernetbrain"]
+    }
+  }
+}

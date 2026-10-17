@@ -1,66 +1,45 @@
 ---
 name: chiedi
-description: Interroga la wiki del progetto attivo. Risponde citando le pagine, oppure dichiara esplicitamente che la wiki non copre l'argomento invece di improvvisare.
+description: Interroga AsernetBrain (wiki aziendale, domini tecnici o clienti) usando il motore di ricerca ibrido locale QMD (MCP qmd-asernet) e gli index.md. Risponde citando le pagine con provenienza, oppure dichiara esplicitamente che il vault non copre l'argomento invece di improvvisare.
 argument-hint: "[la domanda]"
-allowed-tools: Read, Glob, Grep
+allowed-tools: Read, Glob, Grep, Bash
 ---
 
-# Query sulla wiki
+# Query su AsernetBrain (`/chiedi`)
 
 Domanda: `$ARGUMENTS`
 
-## Precondizione
+## 1. Precondizione di Sincronizzazione
+Assicurati che il vault sia stato sincronizzato in questa sessione (`/prime` o `vault_sync`). Su un vault non sincronizzato rischieresti di dichiarare scoperto un argomento che un collega ha già documentato.
 
-Serve un progetto attivo. Se non c'è, fermati e chiedi di lanciare `/progetto`.
+## 2. Procedura di Ricerca (QMD Locale + Index)
 
-Serve anche che `/progetto` sia stato lanciato **in questa sessione**, perché è
-lì che avviene il `git pull`. Su un vault non sincronizzato non sai che certe
-pagine esistono: applicheresti la soglia di astensione qui sotto a un bundle
-incompleto e dichiareresti scoperto un argomento che invece è coperto. È il modo
-più silenzioso in cui questa skill può sbagliare.
+1. **Ricerca ibrida locale con QMD (`--index asernetbrain`):**
+   - Usa gli strumenti del server MCP **`qmd-asernet`** (oppure via CLI `qmd --index asernetbrain query "<domanda>" --json -n 8`) scegliendo la collection più adatta:
+     - `asernet-wiki` → procedure aziendali, SOP, prodotti, concetti (`wiki/`)
+     - `asernet-clients` → schede clienti, stato, diagnosi DataPyx, storico (`clients/`)
+     - `asernet-topics` → domini tecnici verticali (`topics/`)
+     - *(nessun filtro `-c` per domande trasversali)*
+2. **Fallback strutturale:**
+   - Se lo score di QMD è basso (`< 0.3`) o per navigazione panoramica, leggi `wiki/index.md` e `clients/index.md`.
+3. **Lettura mirata:**
+   - Apri **solo** le pagine rilevanti (massimo 6 pagine; se la domanda è troppo ampia, chiedi di restringerla).
 
-## Procedura
+## 3. Soglia di astensione (regola non derogabile per la Zona Governata `wiki/`)
 
-1. Leggi l'`index.md` di radice, poi gli `index.md` di sezione pertinenti.
-2. Apri **solo** le pagine che servono. Se ne stai aprendo più di sei, fermati e
-   chiedi di restringere la domanda: significa che è troppo larga.
-3. Componi la risposta dalle pagine lette, citandole con link relativi.
-
-## Soglia di astensione — regola non derogabile
-
-Prima di scrivere la risposta, poniti questa domanda: *l'affermazione centrale
-della mia risposta è scritta in una pagina che ho aperto, oppure la sto
-costruendo io mettendo insieme frammenti debolmente pertinenti?*
+Prima di scrivere la risposta su procedure o documentazione aziendale, poniti questa domanda: *l'affermazione centrale della mia risposta è scritta in una pagina che ho aperto, oppure la sto costruendo io mettendo insieme frammenti debolmente pertinenti?*
 
 Nel secondo caso la risposta corretta è:
+> AsernetBrain non contiene ancora una risposta documentata a questa domanda.
 
-> La wiki di `<slug>` non contiene una risposta affidabile a questa domanda.
+seguita da cosa manca e quale fonte servirebbe per colmarlo. Se aggiungi una risposta basata sulla tua conoscenza generale, mettila in un blocco **separato e chiaramente marcato come esterno al vault**.
 
-seguita da: cosa manca esattamente, e quale fonte servirebbe per colmarlo.
+## 4. Formato della risposta
 
-- Non sintetizzare da match a bassa rilevanza.
-- Se conosci la risposta per conoscenza generale ma la wiki non la contiene,
-  puoi dirlo — ma in un blocco **separato e marcato come esterno alla wiki**,
-  dopo la dichiarazione di astensione. Mai mescolato alla risposta citata.
-- Una risposta di astensione **non viene mai archiviata**.
-
-## Formato della risposta
-
-```
-<risposta, con [link](percorso.md) alle pagine da cui viene ogni affermazione>
+```markdown
+<risposta chiara e concisa, con [link](percorso.md) alle pagine da cui proviene ogni affermazione>
 
 ---
-Fonti nella wiki: <elenco pagine aperte>
-Confidenza: alta | media | bassa — <perché>
+**Fonti nel vault:** <elenco pagine aperte + eventuale `provenance.user` se il documento grezzo è in `raw/`>
+**Confidenza:** alta | media | bassa — <perché>
 ```
-
-Se le pagine usate hanno `status: stale` o `confidence: low`, dillo.
-Se contengono `## Contraddizioni aperte` rilevanti, riportale: non scegliere
-tu quale versione è giusta.
-
-## Archiviazione
-
-Se la risposta è ben fondata e ha valore duraturo, **proponi** di salvarla in
-`syntheses/` con `type: Synthesis`, indicando titolo e `confidence`.
-Proponi e fermati: non archiviare di iniziativa, e non archiviare mai una
-risposta di astensione o una che si appoggia a conoscenza esterna alla wiki.
