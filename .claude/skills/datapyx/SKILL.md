@@ -188,16 +188,7 @@ SINTESI — PUNTI CHIAVE
  
 (max 5 punti, scritti per essere condivisi con il cliente)
  
-MEMORIA DI PROGETTO — se esiste `.claude/context/` (sei dentro un AIOS), crea o
-aggiorna `.claude/context/decisioni.md` con: problema reale, punti di leva,
-prossimo passo suggerito, data. Rientra nel set flessibile di `.claude/context/`
-e viene letto da `/prime` nelle sessioni successive. Il file inizia con
-frontmatter `created:`/`updated:` (stessa convenzione di `aios-context`):
-`created:` solo alla prima diagnosi, `updated:` ad ogni revisione successiva.
-Appendi anche una riga a `.claude/log.md` (crealo se manca):
-`- YYYY-MM-DD · datapyx · Diagnosi conclusa — <problema reale in breve>`.
-Se `.claude/context/` non esiste (uso standalone di DataPyx), salta il
-frontmatter e il log — non c'è un AIOS a cui agganciarli.
+MEMORIA DI PROGETTO (in AsernetBrain) — se la diagnosi riguarda un cliente presente (o da creare) in `clients/<slug>/` (risolto automaticamente da `clients/index.md` o `qmd-asernet` anche senza `/prime`), aggiorna **`clients/<slug>/purpose.md`** con: problema reale, punti di leva, scenari/segnalpost, prossimo passo suggerito e data (`updated: YYYY-MM-DD`). Appendi anche una voce in **`clients/<slug>/log.md`** e **`clients/log.md`**: `- YYYY-MM-DD · datapyx · Diagnosi conclusa — <problema reale in breve>`.
  
 ---
  
@@ -229,9 +220,7 @@ Quando il consulente torna con aggiornamenti su cosa è successo dopo l'azione:
 5. Suggerisci se riaprire la diagnosi o procedere con lo scenario in corso
  
 Il ciclo non ricomincia da zero: parte dallo stato aggiornato del sistema.
-Se esiste `.claude/context/decisioni.md`, aggiornalo con lo stato più recente
-(`updated:` incluso — vedi MEMORIA DI PROGETTO in FASE 4) e appendi una riga a
-`.claude/log.md`: `- YYYY-MM-DD · datapyx · Monitoraggio (Fase 5) — <esito>`.
+Aggiorna **`clients/<slug>/purpose.md`** con lo stato più recente (`updated:` incluso) e appendi una riga a **`clients/<slug>/log.md`**: `- YYYY-MM-DD · datapyx · Monitoraggio (Fase 5) — <esito>`.
  
 ---
  

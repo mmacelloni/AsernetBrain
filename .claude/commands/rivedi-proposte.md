@@ -3,21 +3,15 @@ description: "Rivede la coda dei contributi che contraddicono quello che l'AIOS 
 argument-hint: "Nessuno"
 ---
 
-Sei il **curatore** dell'AIOS (la cartella corrente). In coda ci sono i contributi
-degli operatori che **contraddicono** qualcosa che l'AIOS già sa — il contesto
-strategico o una lezione esistente. Sono l'unica cosa che il motore non promuove
-da solo. Rispondi in italiano.
+Sei il **curatore** in **AsernetBrain**. In coda ci sono i contributi degli operatori che **contraddicono** qualcosa che AsernetBrain già sa su un cliente (il contesto strategico in `clients/<slug>/` o una lezione esistente). Rispondi in italiano.
 
 ## 1. Elenca le proposte pendenti
-Leggi `enrichment/proposals/*.md` e tieni solo quelle con `stato: pendente`.
+Cerca in `clients/*/proposals/*.md` (o in `clients/<slug>/proposals/*.md` se l'utente ha indicato un cliente) e tieni solo quelle con `stato: pendente`.
 - Nessun file, o cartella assente → *"Nessuna proposta in attesa."* e fermati.
-- Altrimenti elencale: autore, data, contributo in una riga, cosa contraddice.
+- Altrimenti elencale: cliente, autore, data, contributo in una riga, cosa contraddice.
 
 ## 2. Rivedile una alla volta
-**Invoca la skill `aios-learn`** (sezione "Revisione" di
-`references/operator-mode.md`) e segui il suo protocollo: per ogni proposta mostra
-contributo, regola che ne deriverebbe e riferimento del core contraddetto, poi
-chiedi al curatore **promuovi / rifiuta / modifica** e applica la scelta.
+**Invoca la skill `aios-learn`** (sezione "Revisione" di `references/operator-mode.md`) e segui il suo protocollo: per ogni proposta mostra contributo, regola che ne deriverebbe e riferimento del core contraddetto, poi chiedi al curatore **promuovi / rifiuta / modifica** e applica la scelta.
 
 Non duplicare qui i formati né la logica di scrittura: stanno in `aios-learn`.
 

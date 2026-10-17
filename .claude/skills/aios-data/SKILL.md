@@ -4,94 +4,58 @@ description: Costruisce il livello Dati (DataOS) di un AIOS aziendale. Fa discov
 argument-hint: "Nome azienda (opzionale)"
 ---
 
-# AIOS — Livello 2: DataOS
+# AIOS — Livello 2: DataOS (per Cliente in AsernetBrain)
 
-Colleghi a Claude i dati reali dell'azienda. Ogni volta che si apre una sessione
-(via `/prime`) Claude sa qual è lo stato attuale dei numeri e può interrogare il
-database per analisi e rielaborazioni. Lavori **sulla cartella corrente**.
+Colleghi a Claude i dati reali di un cliente in `clients/<slug>/`. Ogni volta che si interroga il cliente (o via `/prime`), Claude conosce lo stato attuale dei numeri in `clients/<slug>/key-metrics.md` e può interrogare il database SQLite locale `clients/<slug>/data/database.db`.
 
-Questo è un **workshop di discovery guidato**, non un'installazione muta:
-intervista, suggerisci, presenta un piano, poi costruisci.
+Questo è un **workshop di discovery guidato**, non un'installazione muta: intervista, suggerisci, presenta un piano, poi costruisci.
 
-Leggi `references/discovery-guide.md` prima dell'intervista e
-`references/build-guide.md` prima di generare schema e script.
+Leggi `references/discovery-guide.md` prima dell'intervista e `references/build-guide.md` prima di generare schema e script.
 
 ## Flusso
 
-### 1. Prerequisiti
-- **Contesto (Livello 1).** Verifica che esista `.claude/context/`. Se manca,
-  avvisa che DataOS lavora meglio dopo `aios-context` e chiedi se procedere lo
-  stesso o costruire prima il contesto. Se esiste, **leggi i file di contesto**
-  (soprattutto `strategia.md` e `dati-correnti.md`): dicono quali metriche
-  contano davvero per questa azienda.
-- **Python.** `python --version` (o `python3`). Se manca, guida all'install per
-  l'OS dell'utente (Windows: `winget install Python.Python.3.13`).
-- **Modalità update.** Se esiste già `data/database.db`, non ricostruire: leggi
-  lo schema esistente e chiedi cosa aggiungere/cambiare.
+### 1. Prerequisiti (Zero-Friction)
+- **Individua il cliente (`clients/<slug>/`).** Risolvilo da `$ARGUMENTS`, dalla conversazione o tramite `clients/index.md` / `qmd-asernet` (`-c asernet-clients`).
+- **Contesto (Livello 1).** Verifica se esistono `clients/<slug>/index.md`, `state.md` e `purpose.md`. Se esistono, leggili: dicono quali metriche contano davvero per questo cliente. Se mancano, chiedi se procedere lo stesso o costruire prima il contesto con `aios-context`.
+- **Python.** Verifica `python --version` (o `python3`).
+- **Modalità update.** Se esiste già `clients/<slug>/data/database.db`, non ricostruire da zero: leggi lo schema esistente e chiedi cosa aggiungere/cambiare.
 
 ### 2. Discovery
 Segui `references/discovery-guide.md`. Per ogni metrica che conta:
-- chiedi **dove vive il dato** (Google Sheet, CSV, CRM, gestionale, pagamenti…);
-- scegli **caso per caso** l'approccio: import Sheet/CSV, inserimento manuale via
-  comando, oppure connettore API **solo se** la sorgente lo supporta e l'utente
-  ha già le chiavi;
-- copri il funnel: top (come ti trovano) / middle (come interagiscono) / bottom
-  (come e quando convertono).
-Non dare per scontate le sorgenti: chiedi.
+- chiedi **dove vive il dato** (Google Sheet, CSV, PerfexCRM, GA4, Meta Ads, gestionale, pagamenti…);
+- scegli **caso per caso** l'approccio: import Sheet/CSV, inserimento manuale, oppure connettore API;
+- copri il funnel: top / middle / bottom.
 
 ### 3. Piano
 Prima di scrivere codice, presenta:
 - l'elenco delle **sorgenti** e per ognuna l'approccio scelto;
-- lo **schema del database** (tabelle e colonne) derivato dalle metriche reali;
-- i **file** che creerai.
+- lo **schema del database** (`clients/<slug>/data/database.db`) derivato dalle metriche reali;
+- i **file** che creerai in `clients/<slug>/`.
 Ottieni conferma.
 
-### 4. Costruzione
-Segui `references/build-guide.md`. Crea nella working dir:
+### 4. Costruzione in `clients/<slug>/`
+Segui `references/build-guide.md`. Crea o aggiorna dentro `clients/<slug>/`:
 
+```text
+clients/<slug>/
+├── key-metrics.md                # AUTOGENERATO da data/refresh.py (committato in Git)
+├── connectors/
+│   ├── config.yaml               # Registro sorgenti collegate (scope: lettura | scrittura)
+│   └── <sorgente>.py             # Connettore Python per sorgente
+└── data/
+    ├── database.db               # SQLite locale (ignorato da Git via .gitignore)
+    └── refresh.py                # Aggrega tutte le sorgenti → DB → rigenera ../key-metrics.md
 ```
-data/
-  database.db            # SQLite
-  connectors/<sorgente>.py   # uno per sorgente
-  refresh.py             # aggrega tutte le sorgenti → DB → rigenera key-metrics.md
-.claude/
-  context/key-metrics.md     # AUTOGENERATO — non modificarlo a mano
-  commands/refresh-data.md   # comando /refresh-data
-.env                     # chiavi API/segreti (git-ignorato)
-```
 
-- **Schema flessibile**, non fisso: modella le tabelle sulle metriche emerse.
-- **Segreti** solo in `.env`. Mai chiavi API in file committati, nel DB o nel
-  contesto. Se non esiste, crea/aggiorna `.gitignore` con `.env`.
-- **key-metrics.md** è rigenerato da `refresh.py` a partire dal DB: contiene le
-  metriche chiave in forma leggibile. Il `/prime` del Livello 1 lo carica già.
-  `refresh.py` scrive/aggiorna anche il frontmatter (`created:` la prima
-  volta, `updated:` ad ogni rigenerazione — stessa convenzione di
-  `aios-context`).
+- **Segreti** solo in `.env` (mai in file committati, né in `config.yaml` dove si indica solo il nome della variabile `env_prefix`).
+- **`clients/<slug>/key-metrics.md`** è rigenerato da `clients/<slug>/data/refresh.py` a partire dal DB: contiene le metriche chiave in forma leggibile ed è versionato in Git così tutti i colleghi vedono i KPI aggiornati senza dover copiare il file `.db`.
 
-### 5. Refresh
-- `refresh.py`: esegue tutti i connettori, aggiorna il DB, **rigenera
-  key-metrics.md**.
-- Comando `/refresh-data` (in `.claude/commands/`): esegue `refresh.py`
-  on-demand.
-- **Scheduling:** genera lo script e **spiega** come schedularlo (Windows Task
-  Scheduler / cron su Mac) senza toccare lo scheduler di sistema. Vedi
-  build-guide.
-
-### 6. Verifica e chiusura
-- Esegui `refresh.py` una volta e mostra il `key-metrics.md` risultante come
-  prova che la pipeline funziona.
-- Fai una query di esempio sul DB (es. crescita % del fatturato mese su mese) per
-  dimostrare che Claude può interrogare i dati.
-- Ricorda all'utente: `/prime` a inizio sessione carica anche le metriche;
-  `/refresh-data` quando vuole aggiornarle.
-- Verifica che ogni sorgente collegata sia registrata in
-  `.claude/context/connessioni.md` (formato e caso «file assente»: vedi
-  `references/discovery-guide.md`).
-- Appendi una riga a `.claude/log.md`:
-  `- YYYY-MM-DD · aios-data · Livello 2 Dati costruito (N sorgenti)` (o, per un
-  refresh con cambi di schema, una riga equivalente).
-- Se l'utente usa InfraOS (Livello 1), suggerisci un `/commit`.
+### 5. Refresh e Verifica
+- Esegui `python clients/<slug>/data/refresh.py` una volta e mostra il `clients/<slug>/key-metrics.md` risultante.
+- Fai una query di esempio sul DB per dimostrare che Claude può interrogare i dati.
+- Verifica che ogni sorgente collegata sia registrata in `clients/<slug>/connectors/config.yaml`.
+- Appendi una riga a `clients/<slug>/log.md` e `clients/log.md`: `- YYYY-MM-DD · aios-data · Livello 2 Dati costruito (N sorgenti)`.
+- Suggerisci `/pubblica` per condividere `key-metrics.md` e gli script con il team.
 
 Contenuti generati per aziende italiane: **in italiano**.
 

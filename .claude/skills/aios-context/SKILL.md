@@ -4,120 +4,65 @@ description: Costruisce il livello di Contesto di un AIOS (AI Operating System) 
 argument-hint: "Nome azienda o cliente (opzionale)"
 ---
 
-# AIOS — Livello 1: ContextOS + InfraOS
+# AIOS — Livello 1: ContextOS (Multi-Cliente in AsernetBrain)
 
-Trasformi Claude da assistente generico in un'AI che conosce a fondo un'azienda
-specifica — sia **chi è** (contesto testuale) sia **come si presenta** (identità
-di brand: colori, tipografia, logo, stack tecnico). Lavori **sulla cartella
-corrente** (la working dir è la cartella dedicata a quell'azienda/cliente). Il
-tuo ruolo in questa skill è quello di un **interviewer**: curioso, che scava, che
-non dà mai nulla per scontato e che mette in discussione ciò che non torna.
+Trasformi Claude in un assistente che conosce a fondo un cliente specifico — sia **chi è** (contesto stabile e volatile) sia **come si presenta** (brand, stack tecnico, contatti). In **AsernetBrain** lavori direttamente sulla cartella **`clients/<slug>/`** (anche se l'utente si trova nella radice del brain e non ha lanciato `/prime`). Il tuo ruolo in questa skill è quello di un **interviewer**: curioso, che scava, che non dà mai nulla per scontato e che mette in discussione ciò che non torna.
 
 Leggi `references/interview-guide.md` prima di iniziare l'intervista.
 
 ## Flusso
 
-### 1. Detect — nuovo o update?
-Controlla se esiste già `.claude/context/` nella working dir.
-- **Esiste** → modalità *update*: leggi i file esistenti, riepiloga cosa già
-  sai, e chiedi **cosa è cambiato** (nuovi numeri, nuove priorità, nuovo team).
-  Non ripartire da zero: aggiorna solo ciò che serve.
-- **Non esiste** → modalità *build*: costruzione da zero.
-
-Se l'utente ha passato un argomento, usalo come nome azienda/cliente.
+### 1. Detect — nuovo o update? (Zero-Friction)
+Individua lo `<slug>` del cliente da `$ARGUMENTS`, dalla conversazione o cercando in `clients/index.md` / `qmd-asernet` (`-c asernet-clients`).
+Controlla se esiste già `clients/<slug>/index.md`:
+- **Esiste** → modalità *update*: leggi i file esistenti in `clients/<slug>/` (`index.md`, `state.md`, `purpose.md`, `contacts.md`, `projects.md`), riepiloga cosa già sai e chiedi **cosa è cambiato**. Non ripartire da zero: aggiorna solo ciò che serve.
+- **Non esiste** → modalità *build*: costruzione da zero a partire dal template `clients/_template/`.
 
 ### 2. Input mode
 Chiedi come vuole fornire il contesto (sono combinabili):
 - **Intervista** — rispondi alle mie domande in chat
 - **Incolla testo** — sito web, profilo LinkedIn, brief, note libere
-- **Indica file** — PDF, .md, presentazioni presenti nella cartella
+- **Indica file in `raw/clients/<slug>/`** — PDF, .md, presentazioni salvate in locale nella cartella `raw/clients/<slug>/` (che resta sul disco dell'utente e viene tracciata via `provenance`)
 
 ### 3. Estrazione (se ha fornito testo/file)
-Leggi e sintetizza il materiale. Rimanda all'utente **cosa hai capito** in forma
-di riepilogo e **elenca esplicitamente i buchi** che l'intervista dovrà colmare.
-Per i PDF usa lo strumento Read; se `markitdown` è disponibile puoi usarlo per
-formati più complessi.
+Leggi e sintetizza il materiale. Rimanda all'utente **cosa hai capito** in forma di riepilogo e **elenca esplicitamente i buchi** che l'intervista dovrà colmare. Se leggi file da `raw/clients/<slug>/`, calcola l'hash e prepara il blocco `provenance: [{ user, raw_path, sha256, date }]`.
 
 ### 4. Intervista
 Copri le aree in `references/interview-guide.md`. Regole:
 - **Una domanda alla volta.** Mai raffiche di domande.
 - **Mai assunzioni.** Se qualcosa non è chiaro, chiedi.
-- **Sfida le incoerenze.** Se i numeri non tornano (es. fatturato incompatibile
-  coi pacchetti e col numero clienti), fermati e chiedi chiarimenti prima di
-  proseguire. Un contesto sbagliato è il peggior risultato possibile.
-- Preferisci domande mirate; accetta risposte approssimative e proponi tu una
-  stima ragionata da far confermare.
+- **Sfida le incoerenze.** Se i numeri non tornano, fermati e chiedi chiarimenti prima di proseguire.
 
 ### 5. Recap prima di scrivere
 Prima di generare qualsiasi file, presenta:
 - un riepilogo del contesto raccolto;
-- l'**elenco dei file** che creerai in `.claude/context/` con una riga di
-  descrizione ciascuno.
+- l'**elenco dei file** che creerai/aggiornerai in `clients/<slug>/` e la riga in `clients/index.md`.
 Ottieni conferma. Correggi se serve.
 
-### 6. Generazione
-Crea nella working dir:
+### 6. Generazione in `clients/<slug>/`
+Crea o aggiorna dentro `clients/<slug>/`:
 
-```
-CLAUDE.md                    # identità azienda + istruzione a leggere il contesto e usare /prime
-.claude/context/*.md         # set FLESSIBILE — vedi sotto
-.claude/commands/prime.md    # slash command che carica tutti i file di contesto
-.claude/log.md               # registro lavori — vedi convenzione più sotto
-```
-
-**File di contesto — set flessibile.** Parti da questi quattro e aggiungi/togli
-in base a cosa è realmente emerso:
-- `azienda.md` — cosa fa, cosa vende, prezzi, clienti target, storia, punto di forza
-- `personale.md` — ruolo dell'utente, responsabilità, come passa il tempo, background, a cosa vuole usare l'AIOS
-- `strategia.md` — priorità attuali, obiettivi, strategia di crescita, visione a lungo termine
-- `dati-correnti.md` — numeri chiave: fatturato, clienti attivi, conversion rate, ostacoli, capacità del team
-- `procedure.md` — **solo se emergono task ricorrenti con un metodo fisso** (es.
-  come si scrive un articolo di blog, come si struttura una campagna Facebook,
-  come si prepara un preventivo, come si gestisce un reclamo): i passi, nell'ordine
-  in cui li segue l'utente, così l'AI li applica senza doverseli far rispiegare.
-  Non è la roadmap di automazione (quella è `automations/roadmap.md` nel Livello
-  4): qui si cattura *come si fa* una cosa, a prescindere dal fatto che verrà mai
-  automatizzata.
-Aggiungi es. `team.md`, `competitor.md`, `prodotti.md` **solo se** il materiale
-lo giustifica. Non creare file vuoti o riempitivi.
-
-**Convenzione data — frontmatter su ogni file di stato/conoscenza.** Ogni file
-in `.claude/context/*.md` e nella cartella `brand/*.md` (top-level, sorella di
-`.claude/`, creata al passo 7) inizia con:
-```yaml
----
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
----
-```
-`created:` si scrive una sola volta, alla prima generazione del file; `updated:`
-si riscrive ad ogni modifica successiva (da questa skill o da qualunque altra
-che tocchi quel file — `aios-data`, `datapyx`…). Stessa convenzione si applica a
-`.claude/aios-build.md` e `automations/roadmap.md` (vedi skill `aios` e
-`aios-automation`). Non si applica a `.claude/commands/*.md` (SOP statiche, non
-stato aziendale).
-
-**Connessioni esterne — `connessioni.md`.** Quando un livello collega una
-sorgente esterna (CRM, foglio, piattaforma di pagamento, tool di meeting,
-casella mail, gestionale), lo stato di quel collegamento si annota in
-`.claude/context/connessioni.md`. Il file **non si crea qui**: nasce alla prima
-connessione, per mano di `aios-data`, `aios-intel` o `aios-automation`. Questa è
-la struttura canonica — le altre skill la ripetono in breve e citano questa
-sezione:
-
-```markdown
-## Sorgenti collegate
-
-| Sorgente | Usata da | Scope | Dal | Note |
-|---|---|---|---|---|
-| Fireflies | aios-intel | lettura | 2026-07-26 | chiave in .env |
-
-## Deroghe all'invio automatico
-
-- Nessuna.
+```text
+clients/<slug>/
+├── index.md              # Contesto STABILE: identità azienda, offerta, prezzi, target, stack, brand, procedure fisse e lezioni apprese
+├── state.md              # Contesto VOLATILE: stato attuale, priorità 30-90gg, numeri correnti, ostacoli e accordi
+├── purpose.md            # Diagnosi DataPyx, obiettivi, tesi in evoluzione e verdetti /challenge
+├── contacts.md           # Persone chiave, ruoli e referenti del cliente
+├── projects.md           # Progetti attivi, storici e roadmap automazioni del cliente
+├── log.md                # Registro cronologico append-only (onboarding, debrief, riunioni, milestone)
+└── connectors/
+    └── config.yaml       # Mappa sorgenti dati esterne (scope: lettura | scrittura) e deroghe invio automatico
 ```
 
-`Scope` ammette due soli valori, scritti **esattamente così**: `lettura` oppure
+Inoltre:
+- Aggiorna **`clients/index.md`** aggiungendo (o aggiornando) la riga del cliente nel catalogo globale.
+- Appendi una voce in **`clients/<slug>/log.md`** e in **`clients/log.md`**.
+
+**Convenzione Frontmatter e Provenienza:**
+Ogni file in `clients/<slug>/*.md` inizia con frontmatter YAML (`title`, `client_slug`, `updated`, ed eventuale `provenance` con `user`, `raw_path`, `sha256`, `date` se alimentato da documenti in `raw/clients/<slug>/`).
+
+**Connessioni esterne (`clients/<slug>/connectors/config.yaml`):**
+Quando un livello collega una sorgente esterna (CRM, foglio, gestionale, Fireflies), lo stato di quel collegamento (`scope: lettura | scrittura` e `deroghe_invio_automatico`) si annota in `clients/<slug>/connectors/config.yaml`.
 `scrittura`. Nessuna variante, nessuna aggiunta: non «sola lettura», non
 «lettura e invio», non «read-only». La colonna si legge a colpo d'occhio solo se
 contiene sempre le stesse due parole; le sfumature vanno nelle note.

@@ -4,87 +4,51 @@ description: Costruisce il livello Intelligence (IntelOS) di un AIOS aziendale. 
 argument-hint: "Nome azienda (opzionale)"
 ---
 
-# AIOS — Livello 3: IntelOS (solo meeting)
+# AIOS — Livello 3: IntelOS (Meeting & Call per Cliente in AsernetBrain)
 
-Porti i transcript delle riunioni dentro l'AIOS, in una tabella interrogabile.
-Claude può così ritrovare decisioni prese, action items e con chi hai parlato,
-anche a settimane di distanza. Lavori **sulla cartella corrente**.
+Porti i transcript delle riunioni dentro `clients/<slug>/`, sia in una tabella SQLite interrogabile (`clients/<slug>/data/database.db`) sia come sintesi strutturate in `clients/<slug>/log.md`. Claude può così ritrovare decisioni prese, action items e con chi hai parlato da qualsiasi cartella del brain.
 
-Workshop di discovery guidato, non installazione muta. Punto chiave: prima di
-scegliere un connettore, **cerca la documentazione API** del tool per capire se è
-davvero utilizzabile.
-
-Leggi `references/discovery-guide.md` prima dell'intervista e
-`references/build-guide.md` prima di costruire.
+Leggi `references/discovery-guide.md` prima dell'intervista e `references/build-guide.md` prima di costruire.
 
 ## Flusso
 
-### 1. Prerequisiti
-- **Python.** `python --version`; se manca, guida all'install.
-- **Database.** IntelOS usa `data/database.db` di DataOS. Se **non esiste**,
-  crealo tu (IntelOS funziona anche standalone). Se esiste già la tabella
-  `meetings`, modalità update: non ricreare, aggiungi solo i nuovi.
-- **Contesto (opzionale).** Se esiste `.claude/context/`, leggilo per conoscere
-  team e persone: aiuta la classificazione e le sintesi.
+### 1. Prerequisiti (Zero-Friction)
+- **Individua il cliente (`clients/<slug>/`).** Risolvilo da `$ARGUMENTS`, dalla conversazione o tramite `clients/index.md` / `qmd-asernet` (`-c asernet-clients`).
+- **Python.** Verifica `python --version`.
+- **Database.** IntelOS usa `clients/<slug>/data/database.db` di DataOS. Se non esiste, crealo tu. Se esiste già la tabella `meetings`, opera in modalità update.
+- **Contesto.** Leggi `clients/<slug>/index.md` e `clients/<slug>/contacts.md` per conoscere team e referenti: aiuta la classificazione e le sintesi.
 
 ### 2. Discovery + ricerca API
 Segui `references/discovery-guide.md`:
-- chiedi **quale tool** usa per registrare i meeting (Fireflies, Fathom, Zoom,
-  Google Meet, ClickUp…);
-- **cerca la documentazione API** di quel tool (WebSearch/WebFetch): verifica che
-  esista un'API per elencare meeting e scaricare transcript, e come si autentica;
-- se le API mancano o sono impraticabili, **suggerisci l'alternativa migliore**
-  (es. Fireflies) spiegando il perché, e lascia decidere all'utente;
-- chiedi la **frequenza di raccolta** (giornaliera tipica).
+- chiedi **quale tool** usa per registrare i meeting (Fireflies, Fathom, Zoom, Google Meet, trascrizioni salvate in `raw/clients/<slug>/`…);
+- **cerca la documentazione API** di quel tool (WebSearch/WebFetch) se si usa un connettore automatico;
+- chiedi la **frequenza di raccolta**.
 
 ### 3. Piano
-Prima di scrivere codice presenta: tool scelto, schema della tabella `meetings`,
-file da creare, e cosa serve in `.env`. Ottieni conferma.
+Prima di scrivere codice presenta: tool scelto, schema della tabella `meetings` in `clients/<slug>/data/database.db`, file da creare in `clients/<slug>/connectors/meetings.py`, e cosa serve in `.env`. Ottieni conferma.
 
-### 4. Costruzione
+### 4. Costruzione in `clients/<slug>/`
 Segui `references/build-guide.md`. Crea:
 
+```text
+clients/<slug>/
+├── connectors/
+│   ├── config.yaml               # Registra il connettore meeting (scope: lettura)
+│   └── meetings.py               # Scarica i transcript nel DB e aggiorna log.md
+├── data/
+│   └── database.db               # Tabella meetings (git-ignorato)
+└── log.md                        # Sintesi riunioni, decisioni e action items (committato in Git)
 ```
-data/
-  database.db                     # tabella meetings (creala se manca)
-  connectors/meetings.py          # scarica i transcript nel DB
-.claude/commands/
-  collect-meetings.md             # /collect-meetings (raccolta on-demand)
-  catchup.md                      # /catchup (sintesi meeting recenti)
-.env                              # chiave API del tool (git-ignorato)
-```
 
-- **Tabella `meetings`**: id, sorgente, titolo, data, ora inizio, durata,
-  partecipanti (con email), transcript, riassunto, action items, url, e un campo
-  **classificazione** (categorie flessibili: vendite/prodotto/marketing/generale).
-- **Segreti** solo in `.env`, senza toccare chiavi esistenti; assicura `.env` in
-  `.gitignore`.
-- Il connettore deve fallire in modo pulito e non duplicare meeting già presenti
-  (dedup per id).
+- **Tabella `meetings`**: id, sorgente, titolo, data, ora inizio, durata, partecipanti (con email), transcript, riassunto, action items, url, e campo **classificazione**.
+- **Sincronizzazione con il team (`log.md`)**: poiché `database.db` è locale, ogni meeting significativo importato o riassunto scrive anche una voce sintetica (data, partecipanti, decisioni, action items) in `clients/<slug>/log.md`, così è subito indicizzato da QMD (`asernet-clients`) e visibile a tutti i colleghi!
+- **Segreti** solo in `.env`.
 
-### 5. Comandi + scheduling
-- `/collect-meetings`: esegue lo script e riporta quanti meeting nuovi sono
-  entrati.
-- `/catchup`: interroga i meeting recenti e sintetizza **decisioni prese, action
-  items aperti, con chi hai parlato**. Vedi build-guide per il dettaglio.
-- **Scheduling:** genera lo script e **spiega** come pianificarlo (Windows Task
-  Scheduler / cron), senza toccare lo scheduler di sistema. La raccolta manuale
-  resta sempre via `/collect-meetings`.
-
-### 6. Verifica e chiusura
-- Esegui una raccolta e mostra i meeting entrati nel DB.
-- Fai una **query di prova** (es. "elenca in ordine di priorità le decisioni
-  dell'ultimo meeting") per dimostrare l'interrogabilità.
-- Ricorda: i meeting NON entrano nel `/prime` (troppo voluminosi); si interrogano
-  a voce libera o con `/catchup`.
-- Verifica che la sorgente collegata sia registrata in
-  `.claude/context/connessioni.md` (formato e caso «file assente»: vedi
-  `references/discovery-guide.md`).
-- Appendi una riga a `.claude/log.md`:
-  `- YYYY-MM-DD · aios-intel · Livello 3 Intelligence costruito (connettore <tool>)`.
-  Anche `/collect-meetings` appende una riga quando porta nuovi meeting
-  significativi (non per ogni singolo meeting).
-- Se l'utente usa InfraOS, suggerisci un `/commit`.
+### 5. Verifica e chiusura
+- Esegui una raccolta e mostra i meeting entrati nel DB e in `clients/<slug>/log.md`.
+- Fai una **query di prova** (es. "elenca in ordine di priorità le decisioni dell'ultimo meeting").
+- Verifica che la sorgente collegata sia registrata in `clients/<slug>/connectors/config.yaml`.
+- Suggerisci `/pubblica` per condividere il log aggiornato con il team.
 
 Contenuti generati per aziende italiane: **in italiano**.
 
