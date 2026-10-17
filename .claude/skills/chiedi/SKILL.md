@@ -19,11 +19,12 @@ Non bloccare mai l'utente se non ha eseguito `/prime` in questa sessione:
 1. **Ricerca ibrida locale con QMD (`--index asernetbrain`):**
    - Usa gli strumenti del server MCP **`qmd-asernet`** (oppure via CLI `qmd --index asernetbrain query "<domanda>" --json -n 8`) scegliendo la collection più adatta:
      - `asernet-clients` → schede clienti, stato, diagnosi DataPyx, contatti, progetti, storico (`clients/`)
+     - `asernet-personal` → task ClickUp personali dell'utente, scadenze e note private (`personal/`, solo locale)
      - `asernet-wiki` → procedure aziendali, SOP, prodotti, concetti (`wiki/`)
      - `asernet-topics` → domini tecnici verticali (`topics/`)
-     - *(nessun filtro `-c` per domande trasversali)*
+     - *(nessun filtro `-c` per domande trasversali o che uniscono stato aziendale + task personali)*
 2. **Fallback strutturale:**
-   - Se lo score di QMD è basso (`< 0.3`) o per navigazione panoramica, leggi `clients/index.md`, `wiki/index.md` o `topics/index.md`.
+   - Se lo score di QMD è basso (`< 0.3`) o per navigazione panoramica, leggi `clients/index.md`, `personal/tasks-clickup.md`, `wiki/index.md` o `topics/index.md`.
 3. **Lettura mirata:**
    - Apri **solo** le pagine rilevanti (massimo 6 pagine; se la domanda è troppo ampia, chiedi di restringerla).
 

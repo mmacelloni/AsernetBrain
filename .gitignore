@@ -19,6 +19,11 @@ raw/clients/*
 *.sqlite
 clients/**/data/*.db
 
+# Angolino Riservato dell'Utente (personal/): task ClickUp personali, appunti privati,
+# DB personale. Resta SOLO sul PC del singolo utente, non sale mai sul Git della VPS.
+personal/*
+!personal/README.md
+
 # Obsidian workspace & plugin locali per-macchina
 .trash/
 .obsidian/workspace*.json

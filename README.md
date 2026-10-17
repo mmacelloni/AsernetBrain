@@ -20,7 +20,9 @@ Cosa fa `tools/setup.js` in automatico sulla macchina del collega:
    - `asernet-wiki` (`wiki/`)
    - `asernet-clients` (`clients/`)
    - `asernet-topics` (`topics/`)
-3. Registra in **Claude Code** e **Claude Desktop** i due server MCP:
+   - `asernet-personal` (`personal/`, riservato in locale al singolo utente)
+3. Inizializza la cartella **`personal/`** (`personal/index.md` e `personal/tasks-clickup.md`), esclusa da Git ma indicizzata dal QMD locale.
+4. Registra in **Claude Code** e **Claude Desktop** i due server MCP:
    - **`vault-asernet`** (`tools/vault-mcp/server.js`) → sincronizzazione Git sicura e trigger automatico di `qmd update` ad ogni pull/publish.
    - **`qmd-asernet`** (`qmd mcp --index asernetbrain`) → ricerca ibrida locale BM25 + vettoriale.
 
@@ -63,8 +65,15 @@ AsernetBrain/
 │   ├── README.md               # Regole DOE e Metodo 3C
 │   ├── shared/                 # Automazioni condivise dal team (con gate 3C ≥ 9/10)
 │   └── users/<id>/             # Automazioni personali per singolo collega (marco, sara, anna)
+├── personal/                   # [SOLO LOCALE, ignorata da Git] L'angolino riservato dell'utente
+│   ├── README.md               # Guida allo spazio privato e al collegamento ClickUp personale
+│   ├── index.md                # [SOLO LOCALE] Cruscotto privato, obiettivi e note rapide
+│   ├── tasks-clickup.md        # [SOLO LOCALE] I tuoi task personali sincronizzati da ClickUp
+│   ├── notes/                  # [SOLO LOCALE] Appunti riservati e bozze
+│   ├── connectors/             # [SOLO LOCALE] Connettore ClickUp / Calendario personale
+│   └── data/                   # [SOLO LOCALE] personal.db SQLite + refresh_personal.py
 └── tools/
-    ├── setup.js                # Auto-installer locale (Git MCP + QMD MCP)
+    ├── setup.js                # Auto-installer locale (Git MCP + QMD MCP + personal/)
     └── vault-mcp/server.js     # Server MCP Git + auto-aggiornamento QMD
 ```
 

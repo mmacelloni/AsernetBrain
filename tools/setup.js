@@ -97,12 +97,38 @@ if (!qmdBin) {
   ok(`QMD già presente: ${qmdBin}`);
 }
 
+// ------------------------------------------------------------------ 2b. Inizializzazione Angolino Personale (personal/)
+const personalDir = path.join(VAULT_PATH, 'personal');
+for (const sub of ['notes', 'connectors', 'data']) {
+  const p = path.join(personalDir, sub);
+  if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+}
+const personalIndex = path.join(personalDir, 'index.md');
+if (!fs.existsSync(personalIndex)) {
+  fs.writeFileSync(
+    personalIndex,
+    `---\ntitle: "Angolino Personale (${userArg || 'utente'})"\ntype: personal-dashboard\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 🔒 Spazio Riservato Personale\n\n> Questo file vive **solo sul tuo PC** (ignorato da Git) ma è indicizzato dal tuo QMD locale (\`asernet-personal\`).\n\n## Priorità Personali\n- \n\n## Note Rapide\n- \n`,
+    'utf8'
+  );
+  ok('Creato personal/index.md (solo locale, escluso da Git)');
+}
+const personalClickup = path.join(personalDir, 'tasks-clickup.md');
+if (!fs.existsSync(personalClickup)) {
+  fs.writeFileSync(
+    personalClickup,
+    `---\ntitle: "I Miei Task ClickUp"\ntype: personal-tasks\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 📋 Task Personali ClickUp (Solo Locale)\n\n> File autogenerato dal connettore ClickUp personale (\`personal/data/refresh_personal.py\`). Visibile solo a te.\n\n| Stato | Scadenza | Task | Cliente / Progetto | Priorità |\n|---|---|---|---|---|\n| *(In attesa di sincronizzazione ClickUp personale)* | — | — | — | — |\n`,
+    'utf8'
+  );
+  ok('Creato personal/tasks-clickup.md (solo locale, escluso da Git)');
+}
+
 // ------------------------------------------------------------------ 3. QMD collections & index
 log('3/4', 'Configurazione indice locale QMD (--index asernetbrain) e collection...');
 const collections = [
   { name: 'asernet-wiki', dir: path.join(VAULT_PATH, 'wiki') },
   { name: 'asernet-clients', dir: path.join(VAULT_PATH, 'clients') },
   { name: 'asernet-topics', dir: path.join(VAULT_PATH, 'topics') },
+  { name: 'asernet-personal', dir: path.join(VAULT_PATH, 'personal') },
 ];
 
 if (qmdBin) {
