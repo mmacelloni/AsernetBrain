@@ -1,0 +1,29 @@
+# Configurazione Connettori Dati Esterni del Cliente
+# NOTA: Nessuna password o API key va inserita qui!
+# Le credenziali vivono in .env (es. CLIENT_<SLUG>_API_KEY) o sul server VPS / n8n.
+
+client_slug: "_template"
+database_path: "data/database.db"
+metrics_output: "key-metrics.md"
+
+sources:
+  # Esempio 1: CRM / ERP (PerfexCRM, FattureInCloud, Shopify, ecc.)
+  - id: "crm_principale"
+    type: "api" # api | google_sheet | mysql | csv | n8n_webhook
+    enabled: false
+    script: "connectors/crm.py"
+    env_prefix: "CLIENT_TEMPLATE_CRM_"
+    schedule: "daily"
+    tables:
+      - "leads"
+      - "invoices"
+
+  # Esempio 2: Google Sheet / Analytics
+  - id: "kpi_sheet"
+    type: "google_sheet"
+    enabled: false
+    script: "connectors/sheets.py"
+    env_prefix: "CLIENT_TEMPLATE_SHEETS_"
+    schedule: "on_demand"
+    tables:
+      - "monthly_kpi"

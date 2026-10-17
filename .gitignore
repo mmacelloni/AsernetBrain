@@ -1,0 +1,28 @@
+# Segreti e credenziali (globali, per-utente e per-cliente)
+.env
+.env.*
+**/secrets.yaml
+**/credentials.json
+
+# Database SQLite e cache locali (DataOS / IntelOS per cliente)
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+clients/**/data/*.db
+
+# Obsidian workspace & plugin locali per-macchina
+.trash/
+.obsidian/workspace*.json
+.obsidian/plugins/obsidian-livesync/
+
+# Configurazioni locali Claude per-macchina / per-utente
+.claude/settings.local.json
+.claude/settings.local.json.*
+
+# Python & Node
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.DS_Store
