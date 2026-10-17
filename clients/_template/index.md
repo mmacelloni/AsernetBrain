@@ -10,6 +10,11 @@ updated: 2026-10-17
 website: ""
 since: 2026-10-17
 relationship: diretto
+provenance:
+  - user: "marco"
+    raw_path: "raw/clients/_template/"
+    sha256: ""
+    date: 2026-10-17
 ---
 
 # Nome Azienda Cliente — Contesto Stabile

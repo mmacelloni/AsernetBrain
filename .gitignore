@@ -4,6 +4,14 @@
 **/secrets.yaml
 **/credentials.json
 
+# Fonti grezze (raw/): restano sul disco locale dell'utente che fa l'ingest,
+# NON salgono sul repo Git della VPS. Nei file derivati viene tracciato user + path + sha256.
+raw/*
+!raw/.gitkeep
+!raw/clients/
+raw/clients/*
+!raw/clients/.gitkeep
+
 # Database SQLite e cache locali (DataOS / IntelOS per cliente)
 *.db
 *.db-journal

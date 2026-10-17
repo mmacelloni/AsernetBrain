@@ -47,15 +47,26 @@ AsernetBrain/
 
 ---
 
-## 2. Governance a Doppio Binario
+## 2. Governance a Doppio Binario e Provenienza (`raw/` Locale)
 
-1. **Zona Governata (`wiki/`, `topics/`, `_meta/`) — Regime OKF:**
-   - Ogni pagina ha frontmatter con `authored_by` e `reviewed_by` (confrontati con `_meta/authors.md`).
+1. **Regola della Provenienza (`raw/` locale + puntatore utente/cartella):**
+   - A differenza di FullBrain (che cancella `raw/`) e di AsernetOS v1 (che committava `raw/` in Git appesantendo il repo), in **AsernetBrain** la cartella `raw/` è **esclusa da Git** (`.gitignore`) e **NON viene cancellata** dopo l'ingest.
+   - I file originali restano sul disco locale dell'utente che ha eseguito l'ingest (organizzati in `raw/wiki/...` o `raw/clients/<slug>/...`).
+   - Ogni pagina creata o aggiornata da una fonte in `raw/` registra obbligatoriamente nel frontmatter (e/o nel log) chi ha il file e dove si trova:
+     ```yaml
+     provenance:
+       - user: "marco"
+         raw_path: "raw/clients/acme/brief-2026-10.pdf"
+         sha256: "a1b2c3d4e5f6"
+         date: 2026-10-17
+     ```
+2. **Zona Governata (`wiki/`, `topics/`, `_meta/`) — Regime OKF:**
+   - Ogni pagina ha frontmatter con `authored_by`, `reviewed_by` (confrontati con `_meta/authors.md`) e `provenance`.
    - L'agente non può validare sé stesso (`authored_by` ≠ `reviewed_by`).
    - Soglia di astensione: se il wiki non copre una procedura interna, lo si dichiara senza inventare.
-2. **Zona Operativa (`clients/`, `actions/`) — Regime AIOS:**
+3. **Zona Operativa (`clients/`, `actions/`) — Regime AIOS:**
    - Pensata per la velocità operativa quotidiana (`/prime`, `/debrief`, `/datapyx`, `/challenge`, `/refresh-data`).
-   - Nessun blocco `reviewed_by` obbligatorio per aggiornare stato, debrief o metriche di un cliente.
+   - Nessun blocco `reviewed_by` obbligatorio per aggiornare stato, debrief o metriche di un cliente, ma quando si acquisisce un documento in `raw/clients/<slug>/` si traccia sempre il blocco `provenance` (`user` + `raw_path`).
    - Separazione netta tra **contesto stabile** (`index.md`) e **contesto volatile** (`state.md` + `key-metrics.md`).
 
 ---
