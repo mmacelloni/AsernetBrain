@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# Hook automatico post-merge (eseguito ad ogni git pull sul repo principale AsernetBrain):
+# Sincronizza e fonde (merge) il branch main del sub-repo personale (personal/.git).
+
+if [ -d "personal/.git" ]; then
+  echo "[AsernetBrain Hook] Sincronizzazione e merge del sub-repo personale (personal/)..."
+  git -C personal fetch origin main --quiet 2>/dev/null || true
+  git -C personal merge --no-edit origin/main 2>/dev/null || true
+fi

@@ -330,6 +330,62 @@ function parseBlockingPaths(stderr) {
 
 // ---------------------------------------------------------------- tools
 
+function personalStatus() {
+  const personalDir = path.join(VAULT_PATH, 'personal');
+  if (!fs.existsSync(path.join(personalDir, '.git'))) {
+    return { initialized: false };
+  }
+  try {
+    execFileSync('git', ['fetch', '--quiet'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+  } catch {
+    // ignore offline fetch
+  }
+  let ahead = 0;
+  let behind = 0;
+  try {
+    const ab = execFileSync('git', ['rev-list', '--left-right', '--count', 'HEAD...@{u}'], {
+      cwd: personalDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    [ahead, behind] = ab.split(/\s+/).map(Number);
+  } catch {
+    // no upstream yet
+  }
+  let porcelain = [];
+  try {
+    porcelain = (
+      execFileSync('git', ['status', '--porcelain'], {
+        cwd: personalDir,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }) || ''
+    )
+      .split('\n')
+      .filter((l) => l.length > 3);
+  } catch {
+    porcelain = [];
+  }
+  let remoteUrl = '';
+  try {
+    remoteUrl = execFileSync('git', ['remote', 'get-url', 'origin'], {
+      cwd: personalDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    remoteUrl = '';
+  }
+  return {
+    initialized: true,
+    remote: remoteUrl,
+    ahead,
+    behind,
+    untracked: porcelain.filter((l) => l.startsWith('??')).map((l) => `personal/${l.slice(3)}`),
+    modified: porcelain.filter((l) => !l.startsWith('??')).map((l) => `personal/${l.slice(3)}`),
+  };
+}
+
 function vaultStatus() {
   assertVault();
   const branch = gitOrThrow(['rev-parse', '--abbrev-ref', 'HEAD']);
@@ -365,6 +421,7 @@ function vaultStatus() {
     untracked,
     modified,
     stashes,
+    personal_subrepo: personalStatus(),
     index_lock: lockInfo(),
     merge_ours_driver: driver === 'true' ? 'ok' : 'NON IMPOSTATO — chiama vault_setup',
     identity_config: email || null,
@@ -432,6 +489,8 @@ function vaultSync() {
   if (behind === 0) {
     report.result = 'UP_TO_DATE';
     report.head = gitOrThrow(['rev-parse', '--short', 'HEAD']);
+    report.personal_sync = syncPersonalSubrepo();
+    report.qmd_update = qmdAutoUpdate();
     return report;
   }
 
@@ -543,26 +602,57 @@ function vaultSync() {
   if (report.received.index_and_log.some((p) => p.endsWith('index.md'))) {
     report.note_lint = 'Sono arrivati degli index.md: potrebbe servire /lint per rigenerarli.';
   }
+  report.personal_sync = syncPersonalSubrepo();
   report.qmd_update = qmdAutoUpdate();
   return report;
 }
 
 /**
- * Aggiorna in automatico l'indice locale QMD (`--index asernetbrain`) della
- * macchina del collega dopo un `vault_sync` o un `vault_publish`. Non blocca
- * mai l'operazione Git se `qmd` non è ancora installato.
+ * Sincronizza, fonde (merge) con origin/main e pubblica il sub-repository
+ * personale dell'utente (`personal/.git` -> `/srv/git/personal/<utente>.git`).
  */
-function syncPersonalSubrepo() {
+function syncPersonalSubrepo(customMessage) {
   try {
     const personalDir = path.join(VAULT_PATH, 'personal');
     if (!fs.existsSync(path.join(personalDir, '.git'))) return 'not_initialized';
-    execFileSync('git', ['pull', '--ff-only'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+
+    // 1. Se ci sono modifiche locali in personal/, committale prima del merge col remoto
     execFileSync('git', ['add', '-A'], { cwd: personalDir, stdio: 'ignore', timeout: 10000 });
-    const st = execFileSync('git', ['status', '--porcelain'], { cwd: personalDir, encoding: 'utf8', timeout: 10000 }).trim();
+    const st = execFileSync('git', ['status', '--porcelain'], {
+      cwd: personalDir,
+      encoding: 'utf8',
+      timeout: 10000,
+    }).trim();
+    let committedLocal = false;
     if (st) {
-      execFileSync('git', ['commit', '-m', `${new Date().toISOString().slice(0, 10)} | personal | Auto-sync personal workspace`], { cwd: personalDir, stdio: 'ignore', timeout: 10000 });
-      execFileSync('git', ['push', 'origin', 'main'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
-      return 'synced_and_pushed';
+      const msg = customMessage || `${new Date().toISOString().slice(0, 10)} | personal | Sync personal workspace`;
+      execFileSync('git', ['commit', '-m', String(msg)], { cwd: personalDir, stdio: 'ignore', timeout: 10000 });
+      committedLocal = true;
+    }
+
+    // 2. Fetch e merge di origin/main del sub-repo personale
+    execFileSync('git', ['fetch', 'origin', 'main', '--quiet'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+    try {
+      execFileSync('git', ['merge', '--no-edit', 'origin/main'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+    } catch {
+      return 'merge_conflict_in_personal';
+    }
+
+    // 3. Push verso origin/main se ci sono commit locali o fusi
+    let ahead = 0;
+    try {
+      const ab = execFileSync('git', ['rev-list', '--left-right', '--count', 'HEAD...origin/main'], {
+        cwd: personalDir,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+      ahead = Number(ab.split(/\s+/)[0]) || 0;
+    } catch {
+      ahead = committedLocal ? 1 : 0;
+    }
+    if (ahead > 0 || committedLocal) {
+      execFileSync('git', ['push', '-u', 'origin', 'main'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+      return 'merged_and_pushed';
     }
     return 'up_to_date';
   } catch {
@@ -571,7 +661,6 @@ function syncPersonalSubrepo() {
 }
 
 function qmdAutoUpdate() {
-  const personalSync = syncPersonalSubrepo();
   try {
     const candidates = [];
     if (process.env.APPDATA) {
@@ -593,14 +682,15 @@ function qmdAutoUpdate() {
         timeout: 30000,
       });
     }
-    return `ok (personal: ${personalSync})`;
+    return 'ok';
   } catch {
-    return `skipped (personal: ${personalSync})`;
+    return 'skipped';
   }
 }
 
 /**
- * Chiude un'operazione: verifica L ∩ R, poi committa, fonde e spinge.
+ * Chiude un'operazione: verifica L ∩ R sul repo principale, committa, fonde e spinge
+ * sia il repo principale (`main`) sia il sub-repo personale (`personal/`).
  * Se L ∩ R non è vuoto NON scrive niente e restituisce il referto.
  */
 function vaultPublish({ files, message, confirm_overlap }) {
@@ -612,12 +702,15 @@ function vaultPublish({ files, message, confirm_overlap }) {
     throw new Error('message è obbligatorio: la voce di log di questa operazione.');
   }
 
-  const L = files.map(safeRelPath);
-  for (const p of L) {
+  const allNormalized = files.map(safeRelPath);
+  for (const p of allNormalized) {
     if (!fs.existsSync(path.resolve(VAULT_PATH, p))) {
       throw new Error(`File inesistente: ${p}`);
     }
   }
+
+  const L = allNormalized.filter((p) => !p.startsWith('personal/'));
+  const personalFiles = allNormalized.filter((p) => p.startsWith('personal/'));
 
   const email = git(['config', 'user.email']).stdout;
   if (!email) {
@@ -626,6 +719,19 @@ function vaultPublish({ files, message, confirm_overlap }) {
       message:
         'git config user.email è vuota: il commit sarebbe firmato da nessuno. ' +
         'Impostala prima di pubblicare.',
+    };
+  }
+
+  // Se l'operazione ha toccato solo file in personal/, sincronizza/mergia/pusha il sub-repo personale
+  if (L.length === 0 && personalFiles.length > 0) {
+    const personalRes = syncPersonalSubrepo(String(message));
+    return {
+      result: 'PUBLISHED_PERSONAL_ONLY',
+      identity: email,
+      files: personalFiles,
+      personal_sync: personalRes,
+      qmd_update: qmdAutoUpdate(),
+      message: String(message),
     };
   }
 
@@ -682,14 +788,16 @@ function vaultPublish({ files, message, confirm_overlap }) {
   }
 
   const push = git(['push']);
+  const personalRes = syncPersonalSubrepo(String(message));
   if (!push.ok) {
     if (isOffline(push.stderr)) {
       return {
         result: 'OFFLINE',
         commit: sha,
         identity: email,
-        files: L,
+        files: allNormalized,
         stderr: push.stderr,
+        personal_sync: personalRes,
         qmd_update: qmdAutoUpdate(),
         message:
           'Il commit è fatto ed è integro: la verifica L ∩ R è passata, i file sono dentro, ' +
@@ -699,14 +807,15 @@ function vaultPublish({ files, message, confirm_overlap }) {
           'i file sono già committati, una seconda chiamata non troverebbe niente da aggiungere.',
       };
     }
-    return { result: 'PUSH_FAILED', commit: sha, stderr: push.stderr };
+    return { result: 'PUSH_FAILED', commit: sha, stderr: push.stderr, personal_sync: personalRes };
   }
 
   return {
     result: 'PUBLISHED',
     commit: sha,
     identity: email,
-    files: L,
+    files: allNormalized,
+    personal_sync: personalRes,
     qmd_update: qmdAutoUpdate(),
     message: String(message),
   };

@@ -100,12 +100,13 @@ if (userArg) console.log(`  Utente  : ${userArg}`);
 console.log('');
 
 // ------------------------------------------------------------------ 1. Git local config
-log('1/4', 'Configurazione Git locale (merge driver e identità _meta/authors.md)...');
+log('1/4', 'Configurazione Git locale (merge driver, git hooks per personal/ e identità _meta/authors.md)...');
 try {
   execSync('git config --local merge.ours.driver true', { cwd: VAULT_PATH, stdio: 'ignore' });
-  ok('git config --local merge.ours.driver = true');
+  execSync('git config --local core.hooksPath .githooks', { cwd: VAULT_PATH, stdio: 'ignore' });
+  ok('git config --local merge.ours.driver = true & core.hooksPath = .githooks');
 } catch (e) {
-  warn(`Impossibile impostare merge.ours.driver: ${e.message}`);
+  warn(`Impossibile impostare config Git locale: ${e.message}`);
 }
 
 const authors = parseAuthors();

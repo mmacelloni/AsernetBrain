@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# Hook automatico pre-push (eseguito ad ogni git push sul repo principale AsernetBrain):
+# Committa eventuali modifiche in personal/, fonde (merge) origin/main del sub-repo e fa push su /srv/git/personal/<utente>.git.
+
+if [ -d "personal/.git" ]; then
+  echo "[AsernetBrain Hook] Merge e push automatico del sub-repo personale (personal/)..."
+  git -C personal add -A 2>/dev/null || true
+  if [ -n "$(git -C personal status --porcelain 2>/dev/null)" ]; then
+    git -C personal commit -m "$(date +%Y-%m-%d) | personal | Auto-sync on main push" 2>/dev/null || true
+  fi
+  git -C personal fetch origin main --quiet 2>/dev/null || true
+  git -C personal merge --no-edit origin/main 2>/dev/null || true
+  git -C personal push -u origin main 2>/dev/null || true
+fi
