@@ -50,6 +50,8 @@ clients/<slug>/
 ├── contacts.md           # Persone chiave, ruoli e referenti del cliente
 ├── projects.md           # Progetti attivi, storici e roadmap automazioni del cliente
 ├── log.md                # Registro cronologico append-only (onboarding, debrief, riunioni, milestone)
+├── actions/
+│   └── roadmap.md        # Roadmap e direttive/script DOE specifici del cliente (Livello 4 AutomationOS)
 └── connectors/
     └── config.yaml       # Mappa sorgenti dati esterne (scope: lettura | scrittura) e deroghe invio automatico
 ```

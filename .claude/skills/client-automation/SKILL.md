@@ -39,9 +39,9 @@ Segui `references/audit-guide.md`. Per ogni area (marketing, vendite, gestione c
 
 ### 3. Roadmap
 Scrivi/aggiorna la roadmap nel posto giusto:
-- Per un cliente → sezione `## 3. Roadmap Automazioni Cliente (AutomationOS)` in **`clients/<slug>/projects.md`**.
-- Per automazioni aziendali condivise → **`actions/shared/roadmap.md`** (includendo valore atteso, stato `⬜ da fare` / `✅ fatta` e metriche KPI ex-post).
-- Per automazioni personali di un utente → **`actions/users/<id>/roadmap.md`**.
+- Per un **cliente** → **`clients/<slug>/actions/roadmap.md`** (e riepilogo in `clients/<slug>/projects.md`), salvando direttive e script in `clients/<slug>/actions/`.
+- Per **automazioni aziendali condivise (Vault)** → **`actions/shared/roadmap.md`** (includendo valore atteso, stato `⬜ da fare` / `✅ fatta` e metriche KPI ex-post).
+- Per **automazioni personali di un utente** → **`actions/users/<id>/roadmap.md`**.
 
 ### 4. Per ogni automazione — chiedi conferma
 Partendo dalla più prioritaria, **chiedi all'utente se costruirla ora** o lasciarla `⬜ da fare` nella roadmap. Non costruire nulla senza conferma esplicita.
