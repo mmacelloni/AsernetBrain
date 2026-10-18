@@ -54,76 +54,40 @@ Poi instrada:
 
 In entrambi i casi mantieni identità e tono di DataPyx.
 
-### 1. Checklist persistente
-Leggi/crea `.claude/aios-build.md` nella working dir: è lo stato del build.
-- Se non esiste, crealo dalla struttura in fondo a questo file.
-- Se esiste, è una ripresa: leggilo per sapere dove eri rimasto.
+### 1. Inizializzazione cartella `clients/<slug>/` (se nuovo cliente)
+Se la cartella `clients/<slug>/` non esiste ancora:
+- Creala copiando la struttura standard da `clients/_template/` (`index.md`, `state.md`, `purpose.md`, `key-metrics.md`, `contacts.md`, `projects.md`, `log.md`, `connectors/config.yaml`, `data/`).
+- Aggiungi il cliente al catalogo globale `clients/index.md` e registra l'apertura in `clients/log.md`.
 
-Assicurati anche che esista `.claude/log.md` (registro lavori, crealo con
-header minimo se manca — vedi convenzione in `aios-context`). Non è lo stato
-del build, è la cronologia di cosa è stato fatto: le due cose non si
-sovrappongono.
-
-### 2. Rileva lo stato reale
-Non fidarti solo della checklist: verifica gli artefatti sul disco e allinea le
-spunte.
-- Livello 1 fatto se esiste `.claude/context/` con file + `CLAUDE.md`
-- Livello 2 fatto se esiste `data/database.db` + `.claude/context/key-metrics.md`
-- Livello 3 fatto se nel DB c'è la tabella `meetings`
-- Livello 4 avviato se esiste `automations/roadmap.md` (audit fatto); completato
-  se almeno un'automazione è `✅`
-- Livello 5 fatto se esiste `dashboard/server.py`
-Aggiorna `.claude/aios-build.md` di conseguenza.
+### 2. Rileva lo stato reale in `clients/<slug>/`
+Verifica gli artefatti presenti nella cartella `clients/<slug>/` per capire a che livello è il cliente:
+- **Livello 1 (Contesto)** fatto se `clients/<slug>/index.md`, `state.md` e `contacts.md` sono compilati.
+- **Diagnosi DataPyx (opz.)** fatta se `clients/<slug>/purpose.md` contiene la sintesi diagnostica.
+- **Livello 2 (Dati)** fatto se `clients/<slug>/key-metrics.md` e `clients/<slug>/connectors/config.yaml` (o `data/refresh.py`) sono configurati.
+- **Livello 3 (Intelligence)** fatto se `clients/<slug>/log.md` (e/o tabella `meetings` in `data/database.db`) traccia le riunioni.
+- **Livello 4 (Automazioni)** avviato se `clients/<slug>/projects.md` contiene la Roadmap Automazioni; completato se almeno un'automazione è attiva in `actions/`.
+- **Livello 5 (Dashboard)** fatto se esiste la dashboard del cliente.
 
 ### 3. Mostra il punto e proponi il prossimo
-Presenta la checklist aggiornata e indica **il primo livello non completato**.
-Chiedi se procedere con quello. Rispetta il ritmo dell'utente: **un livello alla
-volta**, chiedendo conferma prima di iniziare e prima di passare al successivo.
-Se l'utente chiede di andare fino in fondo, procedi in sequenza fermandoti solo
-dove le singole skill richiedono input.
+Presenta lo stato dei 5 livelli per `clients/<slug>/` e indica **il primo livello non completato**.
+Chiedi se procedere con quello. Rispetta il ritmo dell'utente: **un livello alla volta**, chiedendo conferma prima di iniziare e prima di passare al successivo.
 
 ### 4. Esegui il livello
-Invoca la skill corrispondente (`aios-context`, `aios-data`, …) e lascia che
-conduca la sua intervista/costruzione. Non anticipare il suo lavoro.
+Applica la skill corrispondente (`aios-context`, `aios-data`, `aios-intel`, `aios-automation`, `aios-dashboard`) lavorando sempre dentro `clients/<slug>/`.
 
 ### 5. Aggiorna e continua
 Al termine di ogni livello:
-- spunta il livello in `.claude/aios-build.md` (aggiorna anche il tag
-  `updated:` in intestazione) e appendi una riga a `.claude/log.md`
-  (`- YYYY-MM-DD · aios · Livello N <nome> completato — <cosa prodotto>`);
-- se l'utente usa InfraOS, suggerisci `/commit`;
-- **appena completato il Contesto (Livello 1), proponi la diagnosi con `datapyx`**
-  prima di procedere ai Dati: aiuta a mettere a fuoco la sfida reale del cliente e
-  a capire quali dati/automazioni serviranno davvero. È opzionale e ripetibile;
-- **chiedi se procedere con il livello successivo** o fermarsi qui (si potrà
-  riprendere semplicemente rieseguendo questa skill).
+- aggiorna `clients/<slug>/state.md` e appendi una voce a `clients/<slug>/log.md` e `clients/log.md`;
+- suggerisci **`/pubblica`** (o `vault_publish`) per salvare e condividere subito il livello completato sulla VPS;
+- **appena completato il Contesto (Livello 1), proponi la diagnosi con `datapyx`** (che salva in `clients/<slug>/purpose.md`) prima di procedere ai Dati;
+- **chiedi se procedere con il livello successivo** o fermarsi qui (si potrà riprendere in qualsiasi momento richiamando `aios <cliente>`).
 
 ### 6. Completamento
-Quando tutti e 5 i livelli sono spuntati, dillo esplicitamente e ricorda il
-flusso operativo quotidiano del cliente: `/prime` a inizio sessione,
-`/refresh-data` e `/collect-meetings` per aggiornare i dati, `/catchup` per le
-riunioni, **`datapyx` per diagnosticare/monitorare la sfida del cliente**,
-`/dashboard` per il pannello, `/commit` a fine sessione (se InfraOS).
+Quando i livelli desiderati sono completati, ricorda il flusso operativo quotidiano per il cliente in AsernetBrain:
+- `/prime <cliente>` a inizio sessione
+- `/client-brief <cliente>` prima di una call
+- `/debrief <cliente>` dopo una riunione o a fine giornata
+- `datapyx` e `/challenge` per diagnosticare/validare sfide e decisioni strategiche
+- `/pubblica` per sincronizzare con il team sulla VPS.
 
-## Template `.claude/aios-build.md`
-
-```markdown
----
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
----
-
-# AIOS build — {{cliente}}
-
-Stato di costruzione dell'AIOS. Aggiornato dall'orchestratore `aios`.
-Log dei lavori: vedi `.claude/log.md`.
-
-- [ ] 1. Contesto (aios-context) — contesto + brand + /prime
-- [ ] (opz.) Diagnosi sfida cliente (datapyx) — trasversale, ripetibile
-- [ ] 2. Dati (aios-data) — SQLite + key-metrics + /refresh-data
-- [ ] 3. Intelligence (aios-intel) — meeting + /catchup
-- [ ] 4. Automazioni (aios-automation) — roadmap + automazioni
-- [ ] 5. Dashboard (aios-dashboard) — pannello localhost
-```
-
-Contenuti generati per aziende italiane: **in italiano**.
+Contenuti generati: **sempre in italiano**.
