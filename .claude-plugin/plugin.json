@@ -2,7 +2,7 @@
   "name": "asernet-brain",
   "version": "1.0.0",
   "description": "AsernetBrain — Sistema Operativo Aziendale Condiviso (AIOS-Datapyx 0.7.1 + AsernetOS 1.3.0 + FullBrain). Include i server MCP locali per Git (vault-mcp) e ricerca semantica (qmd).",
-  "repository": "ubuntu@152.228.134.98:/srv/git/asernetbrain.git",
+  "repository": "git@152.228.134.98:/srv/git/asernetbrain.git",
   "author": {
     "name": "Marco Macelloni — Asernet Srl"
   },
