@@ -308,11 +308,18 @@ const collections = [
 if (qmdJs || qmdBin) {
   for (const c of collections) {
     if (fs.existsSync(c.dir)) {
+      const showRes = runQmd(['--index', 'asernetbrain', 'collection', 'show', c.name]);
+      if (showRes.status === 0 && showRes.stdout) {
+        const pathMatch = showRes.stdout.match(/Path:\s+(.+)/);
+        if (pathMatch && path.resolve(pathMatch[1].trim()) !== path.resolve(c.dir)) {
+          runQmd(['--index', 'asernetbrain', 'collection', 'remove', c.name]);
+        }
+      }
       const res = runQmd(['--index', 'asernetbrain', 'collection', 'add', c.dir, '--name', c.name]);
       if (res.status === 0 || (res.stderr && res.stderr.includes('already'))) {
         ok(`Collection registrata: ${c.name} -> ${c.dir}`);
       } else {
-        ok(`Collection verificata: ${c.name}`);
+        ok(`Collection verificata: ${c.name} -> ${c.dir}`);
       }
       if (c.context) {
         runQmd(['--index', 'asernetbrain', 'context', 'add', `qmd://${c.name}/`, c.context]);
