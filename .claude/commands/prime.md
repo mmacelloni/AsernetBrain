@@ -26,7 +26,7 @@ Rispondi sempre in italiano. Esegui questi passi in ordine all'inizio della sess
   1. Leggi i file condivisi del cliente in `clients/<slug>/`:
      - `index.md` (contesto stabile: identità, storia, stack, brand, lezioni)
      - `state.md` (contesto volatile: priorità attuali, blocchi)
-     - `purpose.md` (diagnosi DataPyx e verdetti `/challenge`)
+     - `purpose.md` (diagnosi AserMind e verdetti `/challenge`)
      - `key-metrics.md` (numeri vivi da DataOS, se presente)
      - prime 20 righe di `log.md` (ultime attività/riunioni)
   2. Filtra da `personal/tasks-clickup.md` eventuali task personali dell'utente collegati a questo cliente.

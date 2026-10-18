@@ -24,6 +24,6 @@
 ---
 
 ## 🔜 Prossimi Passi
-- [ ] **5. Onboarding Primo Cliente Pilota in `clients/<slug>/`**: testare il flusso completo (`aios-context`, `datapyx`, query BigQuery ad hoc in `connectors/bigquery_queries.py`).
+- [ ] **5. Onboarding Primo Cliente Pilota in `clients/<slug>/`**: testare il flusso completo (`aios-context`, `asermind`, query BigQuery ad hoc in `connectors/bigquery_queries.py`).
 - [ ] **6. Connettore ClickUp Personale (`personal/connectors/clickup_personal.py`)**: creare lo script standard che popola `personal/tasks-clickup.md` per ciascun utente.
 - [ ] **7. Abilitazione Chiavi SSH Colleghi (`raffaele`, `domenico`, `pasquale`, `anna`)**: aggiungere le rispettive chiavi `.pub` in `/home/git/.ssh/authorized_keys` man mano che effettuano il primo setup.

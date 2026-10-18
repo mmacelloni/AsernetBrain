@@ -46,7 +46,7 @@ Crea o aggiorna dentro `clients/<slug>/`:
 clients/<slug>/
 ├── index.md              # Contesto STABILE: identità azienda, offerta, prezzi, target, stack, brand, procedure fisse e lezioni apprese
 ├── state.md              # Contesto VOLATILE: stato attuale, priorità 30-90gg, numeri correnti, ostacoli e accordi
-├── purpose.md            # Diagnosi DataPyx, obiettivi, tesi in evoluzione e verdetti /challenge
+├── purpose.md            # Diagnosi AserMind, obiettivi, tesi in evoluzione e verdetti /challenge
 ├── contacts.md           # Persone chiave, ruoli e referenti del cliente
 ├── projects.md           # Progetti attivi, storici e roadmap automazioni del cliente
 ├── log.md                # Registro cronologico append-only (onboarding, debrief, riunioni, milestone)

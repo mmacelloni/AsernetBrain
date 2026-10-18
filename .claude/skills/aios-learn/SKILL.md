@@ -1,6 +1,6 @@
 ---
 name: aios-learn
-description: Motore interno di apprendimento dell'AIOS. Trasforma correzioni ed errori in regole permanenti per quel cliente (lezioni.md) o in feedback di processo sul prodotto AIOS (aios-feedback-prodotto.md), promuove i contributi degli operatori (/contribuisci) nello strato lezioni con contradiction-gate, e ad ogni /prime genera prospettive proattive. NON è un comando esposto all'utente: è invocata internamente da altre skill/comandi (challenge, debrief, datapyx, i livelli AIOS, prime, contribuisci, rivedi-proposte). Usa quando un touchpoint segnala una correzione/frizione, quando un operatore invia un contributo, o quando /prime chiede le prospettive.
+description: Motore interno di apprendimento dell'AIOS. Trasforma correzioni ed errori in regole permanenti per quel cliente (lezioni.md) o in feedback di processo sul prodotto AIOS (aios-feedback-prodotto.md), promuove i contributi degli operatori (/contribuisci) nello strato lezioni con contradiction-gate, e ad ogni /prime genera prospettive proattive. NON è un comando esposto all'utente: è invocata internamente da altre skill/comandi (challenge, debrief, asermind, i livelli AIOS, prime, contribuisci, rivedi-proposte). Usa quando un touchpoint segnala una correzione/frizione, quando un operatore invia un contributo, o quando /prime chiede le prospettive.
 ---
 
 # AIOS — aios-learn (motore di apprendimento)
@@ -26,7 +26,7 @@ Dati di business restano isolati per cliente in `clients/<slug>/`; segnali sul f
 
 | | **Consulente** (sincrona) | **Operatore** (async) |
 |---|---|---|
-| Chi ti invoca | `challenge`, `debrief`, `datapyx`, i livelli AIOS, `/prime` | `/contribuisci` |
+| Chi ti invoca | `challenge`, `debrief`, `asermind`, i livelli AIOS, `/prime` | `/contribuisci` |
 | Umano presente | Sì, in sessione | No: headless, tipicamente dalla dashboard |
 | Gate prima di scrivere | **HITL** su ogni cattura (sotto) | **Contradiction-gate** — leggi `references/operator-mode.md` |
 

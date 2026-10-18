@@ -23,7 +23,7 @@ comunicazione da 3 persone.
   - [3.4 Livello 3 — Intelligence (riunioni)](#34-livello-3--intelligence-riunioni)
   - [3.5 Livello 4 — Automazioni](#35-livello-4--automazioni)
   - [3.6 Livello 5 — Dashboard](#36-livello-5--dashboard)
-- [4. DataPyx: leggere una sfida + il gate `/challenge`](#4-datapyx-leggere-una-sfida--il-gate-challenge)
+- [4. AserMind: leggere una sfida + il gate `/challenge`](#4-asermind-leggere-una-sfida--il-gate-challenge)
 - [5. La giornata tipo](#5-la-giornata-tipo)
 - [6. Aggiornare, riprendere, più macchine](#6-aggiornare-riprendere-più-macchine)
 - [7. Problemi frequenti (FAQ)](#7-problemi-frequenti-faq)
@@ -64,7 +64,7 @@ a installarli — non pensarci ora.
 1. Apri Claude Code (scrivi `claude` nel terminale, oppure apri l'app).
 2. In chat, scrivi questa riga e premi Invio:
    ```
-   /plugin marketplace add CinaWeb/AIOS-Datapyx
+   /plugin marketplace add CinaWeb/AIOS-AserMind
    ```
    (Stai dicendo a Claude *dove* trovare il plugin: la repository su GitHub.)
 3. Poi scrivi:
@@ -80,12 +80,12 @@ a installarli — non pensarci ora.
 1. Apri il menu **Customize** nella barra laterale.
 2. Vai al tab **Plugins**.
 3. In **Personal plugins**, clicca **"+" → Add marketplace**.
-4. Scegli **Add from a repository** e incolla `CinaWeb/AIOS-Datapyx`.
+4. Scegli **Add from a repository** e incolla `CinaWeb/AIOS-AserMind`.
 5. Quando è sincronizzato, cerca **aios** nel catalogo e clicca **Install**.
 
 ### Come capisci che ha funzionato
 
-Digita `/` in chat: fra i comandi disponibili devono comparire `aios`, `datapyx`,
+Digita `/` in chat: fra i comandi disponibili devono comparire `aios`, `asermind`,
 `challenge`, ecc. Se li vedi, sei pronto.
 
 > 💡 **Da qualunque punto, scrivi `/aios-help`** per un riepilogo veloce di cosa
@@ -115,7 +115,7 @@ Si costruisce a **5 livelli**, uno sopra l'altro:
 
 Più due strumenti trasversali:
 
-- **DataPyx** — il "consulente diagnostico": ti aiuta a capire *il problema vero*
+- **AserMind** — il "consulente diagnostico": ti aiuta a capire *il problema vero*
   di un cliente, non solo i sintomi.
 - **`/challenge`** — un "avvocato del diavolo": prende una tua diagnosi o
   decisione importante e prova a demolirla, così scopri i punti deboli *prima* di
@@ -159,11 +159,11 @@ Scrivi in chat:
 /aios
 ```
 
-Claude si presenta **come DataPyx** (è la "faccia" con cui parli all'AIOS) e ti
+Claude si presenta **come AserMind** (è la "faccia" con cui parli all'AIOS) e ti
 chiede da dove partire:
 
 ```
-Ciao. Sono DataPyx. Ti aiuto a costruire e mantenere il cervello operativo
+Ciao. Sono AserMind. Ti aiuto a costruire e mantenere il cervello operativo
 della tua azienda o del tuo cliente — contesto, brand, dati, riunioni e
 automazioni. Per quale cliente lavoriamo? Partiamo da zero o riprendiamo?
 
@@ -381,15 +381,15 @@ sono e cosa hanno notato sul campo (vedi §5).
 
 ---
 
-## 4. DataPyx: leggere una sfida + il gate `/challenge`
+## 4. AserMind: leggere una sfida + il gate `/challenge`
 
-Finora hai *costruito* l'AIOS. **DataPyx** serve invece a *ragionare*: quando un
+Finora hai *costruito* l'AIOS. **AserMind** serve invece a *ragionare*: quando un
 cliente ha un problema e vuoi capire cosa succede davvero.
 
 Lancialo con:
 
 ```
-/datapyx
+/asermind
 ```
 
 Ti chiede *"qual è la sfida?"* e poi ti guida in 5 fasi: ascolta, mappa il sistema,
@@ -400,7 +400,7 @@ cui agire e degli scenari, e infine ti accompagna nel monitoraggio nel tempo. Fa
 Esempio, in breve:
 
 ```
-> /datapyx
+> /asermind
 Claude: Qual è la sfida che devi affrontare?
 > Un cliente pasticceria perde fatturato e vuole aprire un e-commerce nazionale.
 
@@ -409,7 +409,7 @@ soluzione, non il problema. Prima capiamo perché cala il negozio.
 …
 ```
 
-Alla fine della diagnosi, DataPyx **non butta via il lavoro**: salva il
+Alla fine della diagnosi, AserMind **non butta via il lavoro**: salva il
 riepilogo (problema reale, punti di leva, prossimo passo) in
 `.claude/context/decisioni.md`. La sessione successiva `/prime` lo ricarica
 automaticamente — non ripartite mai da zero — e quando arrivi al Livello 4
@@ -418,7 +418,7 @@ contano davvero, invece di proporne una lista generica.
 
 ### Il gate `/challenge` — l'avvocato del diavolo
 
-Quando DataPyx arriva a una **diagnosi importante** (una decisione costosa, difficile
+Quando AserMind arriva a una **diagnosi importante** (una decisione costosa, difficile
 da tornare indietro), *prima di agire* conviene stressarla. Scrivi:
 
 ```
@@ -463,7 +463,7 @@ Una volta costruito l'AIOS, il lavoro di ogni giorno è semplice:
 | Ti servono i numeri freschi | `/refresh-data` | Riaggiorna il database |
 | Nuove riunioni da importare | `/collect-meetings` | Le scarica |
 | "Cosa mi sono perso?" | `/catchup` | Riassunto riunioni recenti |
-| Capire una sfida cliente | `/datapyx` | Diagnosi guidata |
+| Capire una sfida cliente | `/asermind` | Diagnosi guidata |
 | Stressare una decisione | `/challenge` | Red-team + verdetto |
 | Fare un'operazione | `/<automazione>` | Es. `/crea-fattura` |
 | Il pannello visivo | `/dashboard` | Apre la dashboard |
@@ -483,7 +483,7 @@ diagnosi, crea un'automazione…), aggiunge una riga a un piccolo registro:
 
 ```
 - 2026-07-15 · aios-context · Livello 1 Contesto costruito (+ brand)
-- 2026-07-15 · datapyx · Diagnosi conclusa — problema reale: calo concentrato
+- 2026-07-15 · asermind · Diagnosi conclusa — problema reale: calo concentrato
   nel negozio via Roma, non generalizzato
 - 2026-07-20 · aios-automation · Automazione /crea-fattura costruita
 ```
@@ -635,7 +635,7 @@ Studio Rossi/                        ← la cartella = l'AIOS del cliente
 │   ├── log.md                       # registro lavori: cosa è stato fatto e quando
 │   ├── aios-feedback-prodotto.md    # frizioni sull'uso di AIOS (per chi sviluppa il plugin)
 │   ├── context/                     # azienda, strategia, team, key-metrics,
-│   │                                 #   decisioni.md (diagnosi DataPyx), lezioni.md (cose imparate)…
+│   │                                 #   decisioni.md (diagnosi AserMind), lezioni.md (cose imparate)…
 │   └── commands/                    # /prime, /refresh-data, /catchup, /crea-fattura, /dashboard…
 ├── brand/                           # colori, tipografia, logo, asset
 ├── data/
@@ -658,5 +658,5 @@ che esistono ti aiuta solo a capire *dove* vive il tuo AIOS.
 ---
 
 > Hai un dubbio che questa guida non copre? Aprilo come *issue* sulla
-> [repository](https://github.com/CinaWeb/AIOS-Datapyx), oppure chiedilo
+> [repository](https://github.com/CinaWeb/AIOS-AserMind), oppure chiedilo
 > direttamente a Claude in chat mentre usi il plugin.

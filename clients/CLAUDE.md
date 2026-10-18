@@ -1,6 +1,6 @@
 # Clients — Schema Operativo (FullBrain + AIOS)
 
-Ogni cliente vive in una propria sottocartella isolata `clients/<slug>/` che unisce la scheda anagrafica/storica di FullBrain con i moduli operativi di AIOS (DataOS, IntelOS, DataPyx).
+Ogni cliente vive in una propria sottocartella isolata `clients/<slug>/` che unisce la scheda anagrafica/storica di FullBrain con i moduli operativi di AIOS (DataOS, IntelOS, AserMind).
 
 ---
 
@@ -10,7 +10,7 @@ Ogni cliente vive in una propria sottocartella isolata `clients/<slug>/` che uni
 clients/<slug>/
 ├── index.md            # Contesto STABILE: chi è, settore, stack, contatti chiave, brand
 ├── state.md            # Contesto VOLATILE: priorità attuali, problemi aperti, accordi (aggiornato da /debrief)
-├── purpose.md          # Diagnosi /datapyx, tesi in evoluzione, verdetti /challenge (con supersessione)
+├── purpose.md          # Diagnosi /asermind, tesi in evoluzione, verdetti /challenge (con supersessione)
 ├── key-metrics.md      # AUTOGENERATO da data/refresh.py (/refresh-data) — mai modificare a mano
 ├── contacts.md         # Rubrica persone e ruoli del cliente
 ├── projects.md         # Progetti attivi/storici + roadmap automazioni specifiche del cliente

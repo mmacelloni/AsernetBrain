@@ -14,7 +14,7 @@ Se non è stato indicato un cliente, chiedi **solo** il nome e fermati.
 Funziona da qualsiasi cartella del brain **anche senza aver lanciato `/prime`**:
 1. Cerca lo `<slug>` del cliente in `clients/index.md` o tramite `qmd-asernet` (`-c asernet-clients`).
 2. Nella cartella `clients/<slug>/` (e nelle sorgenti correlate disponibili), leggi:
-   - **Contesto e Stato** — `clients/<slug>/index.md` (storia, stack, pacchetto), `clients/<slug>/state.md` (priorità attuali, accordi), `clients/<slug>/purpose.md` (diagnosi DataPyx e decisioni), `clients/<slug>/contacts.md` e `clients/<slug>/projects.md`.
+   - **Contesto e Stato** — `clients/<slug>/index.md` (storia, stack, pacchetto), `clients/<slug>/state.md` (priorità attuali, accordi), `clients/<slug>/purpose.md` (diagnosi AserMind e decisioni), `clients/<slug>/contacts.md` e `clients/<slug>/projects.md`.
    - **Metriche e Dati** — `clients/<slug>/key-metrics.md` e `clients/<slug>/data/database.db` (record cliente, importi, fatture, pipeline) se presenti.
    - **Riunioni e Storico** — `clients/<slug>/log.md` e tabella `meetings` in `clients/<slug>/data/database.db` (data, riassunto, **action items** e decisioni).
    - **Automazioni/Connettori** — `clients/<slug>/connectors/config.yaml` ed eventuali script in `actions/`.

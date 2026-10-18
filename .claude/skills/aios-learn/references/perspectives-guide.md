@@ -7,7 +7,7 @@ schermo, non scritture su file.
 ## Cosa leggere
 
 - `.claude/context/lezioni.md` oppure `.claude/context/lezioni/` (se split)
-- `.claude/context/decisioni.md` (sintesi DataPyx, se presente)
+- `.claude/context/decisioni.md` (sintesi AserMind, se presente)
 - `.claude/context/key-metrics.md` (se presente)
 - riunioni recenti (`data/database.db`, tabella `meetings`, se presente)
 - il focus della sessione corrente (cosa l'utente ha appena chiesto/aperto)

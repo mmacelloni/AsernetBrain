@@ -3,7 +3,7 @@
 **AsernetBrain** è il repository aziendale condiviso di **Asernet S.r.l.** che unifica in un'unica architettura multi-utente:
 1. **FullBrain** — struttura multi-dominio (`wiki/`, `topics/`, `clients/`), Query Router QMD locale e recupero **Zero-Friction** (interroga qualsiasi cliente, procedura o task personale da qualsiasi cartella, anche senza lanciare `/prime`).
 2. **AsernetOS (`v1.3.0`)** — server MCP Git sicuro (`vault-asernet` con controllo anti-sovrapposizione `L ∩ R` e sync congiunto `main` + `personal/`), registro identità (`_meta/authors.md`), provenance crittografica di `raw/` e governance OKF per la documentazione interna.
-3. **AIOS-Datapyx (`v0.7.1`)** — i 5 livelli operativi per ogni cliente (*ContextOS, DataOS, IntelOS, AutomationOS DOE, DashboardOS*), diagnostica sistemica **DataPyx**, gate epistemologico `/challenge` (**Cognitos**) e motore di apprendimento continuo `aios-learn` (`/contribuisci`, `/rivedi-proposte`).
+3. **AIOS-AserMind (`v0.7.1`)** — i 5 livelli operativi per ogni cliente (*ContextOS, DataOS, IntelOS, AutomationOS DOE, DashboardOS*), diagnostica sistemica **AserMind**, gate epistemologico `/challenge` (**Cognitos**) e motore di apprendimento continuo `aios-learn` (`/contribuisci`, `/rivedi-proposte`).
 
 ---
 
@@ -252,7 +252,7 @@ Se hai installato Claude Desktop *dopo* aver lanciato il setup (o se hai spostat
 In **Claude Desktop** **non serve installare alcun plugin separato** dentro il Progetto: il server MCP **`vault-asernet`** (registrato automaticamente da `setup.js`) espone già a Claude:
 - **Lettura e scrittura diretta dei file sul disco** (`vault_read_file`, `vault_write_file`, `vault_list_dir`)
 - **Sincronizzazione Git `main` + `personal/`** (`vault_sync`, `vault_publish`, `vault_status`)
-- **Tutti i 21 Comandi e Skill di AsernetBrain** (`prime`, `ingest`, `chiedi`, `client-brief`, `debrief`, `challenge`, `pubblica`, `lint`, `aios`, `datapyx`, ecc.) direttamente come **Prompt MCP**!
+- **Tutti i 21 Comandi e Skill di AsernetBrain** (`prime`, `ingest`, `chiedi`, `client-brief`, `debrief`, `challenge`, `pubblica`, `lint`, `aios`, `asermind`, ecc.) direttamente come **Prompt MCP**!
 
 Ecco i **3 passaggi** per configurare il tuo Progetto **`AsernetBrain`** in Claude Desktop:
 
@@ -268,7 +268,7 @@ Ecco i **3 passaggi** per configurare il tuo Progetto **`AsernetBrain`** in Clau
      ```
 3. **Come richiamare i Comandi (`/prime`, `/ingest`, `/client-brief`, `/pubblica`) nella Chat del Progetto:**
    - Nel box dove scrivi il messaggio su Claude Desktop, clicca sul pulsante **`+`** (in basso a sinistra nel box di scrittura) → **`Aggiungi da vault-asernet` (Add from vault-asernet)**:
-   - Ti apparirà il menu con tutti i comandi pronti (`prime`, `ingest`, `chiedi`, `client-brief`, `debrief`, `challenge`, `pubblica`, `aios`, `datapyx`, ecc.)!
+   - Ti apparirà il menu con tutti i comandi pronti (`prime`, `ingest`, `chiedi`, `client-brief`, `debrief`, `challenge`, `pubblica`, `aios`, `asermind`, ecc.)!
    - In alternativa, puoi anche semplicemente scrivere nella chat: *"Esegui /prime"* oppure *"Esegui /pubblica"* e Claude userà automaticamente i tool di `vault-asernet`.
 
 ---
@@ -287,14 +287,14 @@ AsernetBrain/
 │   ├── concepts/               # Metodologie, SOP e processi interni Asernet
 │   └── queries/                # Analisi strutturate archiviate
 ├── topics/                     # 📚 DOMINI TECNICI — Networking, Sviluppo, AI, Marketing
-├── clients/                    # 🚀 ZONA OPERATIVA (AIOS + DataPyx) — 1 cartella per ogni cliente
+├── clients/                    # 🚀 ZONA OPERATIVA (AIOS + AserMind) — 1 cartella per ogni cliente
 │   ├── index.md                # Catalogo globale clienti attivi e prospect
 │   ├── log.md                  # Registro globale attività clienti
 │   ├── _template/              # Template standard per l'onboarding di un nuovo cliente
 │   └── <slug>/                 # Cartella del singolo cliente (es. clients/acme-corp/)
 │       ├── index.md            # Contesto STABILE (chi è, offerta, stack, tono di voce, lezioni)
 │       ├── state.md            # Contesto VOLATILE (priorità 30-90gg, stato attuale, accordi)
-│       ├── purpose.md          # Diagnosi sistemica DataPyx, punti di leva e verdetti /challenge
+│       ├── purpose.md          # Diagnosi sistemica AserMind, punti di leva e verdetti /challenge
 │       ├── key-metrics.md      # KPI autogenerati da data/refresh.py (committato in Git)
 │       ├── contacts.md         # Referenti del cliente e ruoli decisionali
 │       ├── projects.md         # Progetti attivi e Roadmap Automazioni
@@ -389,8 +389,8 @@ Quando ricevi un PDF, preventivo, documento tecnico o trascrizione:
    ```
    In questo modo qualsiasi collega sa esattamente chi possiede il file originale e quale versione è stata sintetizzata.
 
-#### 🧭 5. Diagnosi Strategica e Decisioni Critiche (`datapyx` e `/challenge`)
-- Quando un cliente presenta un problema complesso o richiede una consulenza strategica, avvia **`datapyx`** per guidare la diagnosi sistemica in 5 fasi e salvarla in `clients/<slug>/purpose.md`.
+#### 🧭 5. Diagnosi Strategica e Decisioni Critiche (`asermind` e `/challenge`)
+- Quando un cliente presenta un problema complesso o richiede una consulenza strategica, avvia **`asermind`** per guidare la diagnosi sistemica in 5 fasi e salvarla in `clients/<slug>/purpose.md`.
 - Prima di proporre o eseguire una decisione ad alto impatto (architetturale, commerciale o organizzativa), lancia **`/challenge`**: l'agente **Cognitos** eseguirà un red-team rigoroso delle ipotesi per scovare punti ciechi prima di procedere.
 
 #### 📤 6. Condividere il Lavoro con il Team (`/pubblica`)
@@ -413,7 +413,7 @@ Il sistema verificherà il formato dei file, eseguirà il merge sicuro con event
 | `/ingest <percorso-raw>` | `raw/` → `wiki/` o `clients/` | Sintetizza un file grezzo da `raw/`, lascia il file originale sul PC locale e registra la firma `provenance` (`user`, `raw_path`, `sha256`, `date`). |
 | `/chiedi <domanda>` | `wiki/`, `clients/`, `topics/` | Ricerca ibrida profonda su `qmd-asernet` con citazione rigorosa delle fonti e astensione in assenza di evidenze nella Zona Governata. |
 | `aios` | `clients/<slug>/` | Orchestratore guidato dei 5 livelli AIOS (*ContextOS, DataOS, IntelOS, AutomationOS, DashboardOS*) per costruire o evolvere il sistema di un cliente. |
-| `datapyx` | `clients/<slug>/purpose.md` | Assistente diagnostico sistemico (5 fasi) per individuare la sfida radice del cliente, i vincoli e i punti di leva. |
+| `asermind` | `clients/<slug>/purpose.md` | Assistente diagnostico sistemico (5 fasi) per individuare la sfida radice del cliente, i vincoli e i punti di leva. |
 | `/challenge` | `clients/<slug>/purpose.md` | Gate epistemologico (**Cognitos**): stress-test e red-team di una diagnosi o decisione ad alto rischio prima di agire. |
 | `/contribuisci` | `clients/<slug>/` | Registra un'osservazione o lezione appresa dal campo con controllo automatico delle contraddizioni (`aios-learn`). |
 | `/rivedi-proposte` | `clients/<slug>/` | Permette al curatore dell'account di approvare o integrare i contributi proposti dal team. |

@@ -18,7 +18,7 @@ Non bloccare mai l'utente se non ha eseguito `/prime` in questa sessione:
 
 1. **Ricerca ibrida locale con QMD (`--index asernetbrain`):**
    - Usa gli strumenti del server MCP **`qmd-asernet`** (oppure via CLI `qmd --index asernetbrain query "<domanda>" --json -n 8`) scegliendo la collection più adatta:
-     - `asernet-clients` → schede clienti, stato, diagnosi DataPyx, contatti, progetti, storico (`clients/`)
+     - `asernet-clients` → schede clienti, stato, diagnosi AserMind, contatti, progetti, storico (`clients/`)
      - `asernet-personal` → task ClickUp personali dell'utente, scadenze e note private (`personal/`, solo locale)
      - `asernet-wiki` → procedure aziendali, SOP, prodotti, concetti (`wiki/`)
      - `asernet-topics` → domini tecnici verticali (`topics/`)

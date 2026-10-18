@@ -1,6 +1,6 @@
 ---
 description: "Aiuto e orientamento sul plugin AIOS: cosa fa, i 5 livelli, tutti i comandi, e come approfondire con la guida dettagliata. Accetta un argomento per andare dritto a un tema (es. /aios-help dati)."
-argument-hint: "Tema su cui vuoi aiuto (opzionale): installazione, contesto, dati, intelligence, automazioni, dashboard, datapyx, challenge, giornata"
+argument-hint: "Tema su cui vuoi aiuto (opzionale): installazione, contesto, dati, intelligence, automazioni, dashboard, asermind, challenge, giornata"
 ---
 
 L'utente ha chiesto aiuto sul plugin **AIOS**. Il tuo compito è **orientarlo**, in
@@ -15,7 +15,7 @@ quel tema (cosa fa, quale comando lancia, cosa gli verrà chiesto), poi rimanda
 alla sezione corrispondente della guida dettagliata. Mappa tema → sezione:
 
 - installazione → §1 · contesto/brand → §3.2 · dati → §3.3 · intelligence → §3.4
-- automazioni → §3.5 · dashboard → §3.6 · datapyx → §4 · challenge → §4 · giornata → §5
+- automazioni → §3.5 · dashboard → §3.6 · asermind → §4 · challenge → §4 · giornata → §5
 
 ## Se NON ha passato un tema — mostra questo orientamento
 
@@ -45,7 +45,7 @@ scrivi `/aios`. Da lì ti guido livello per livello.
 | `/client-brief <cliente>` | Brief pre-call: timeline, promesse vs consegne, pendenze, agenda |
 | `/refresh-data` | Riaggiorna i numeri nel database |
 | `/collect-meetings` · `/catchup` | Scarica riunioni · riassunto delle recenti |
-| `/datapyx` | Diagnosi guidata di una sfida del cliente |
+| `/asermind` | Diagnosi guidata di una sfida del cliente |
 | `/challenge` | "Avvocato del diavolo": stressa una diagnosi/decisione prima di agire |
 | `/dashboard` | Apre il pannello visivo |
 | `/debrief` | A fine sessione: consolida i progressi del giorno nel contesto |
@@ -65,7 +65,7 @@ Chiudi sempre offrendo l'approfondimento:
 
 > Vuoi la guida passo-passo completa, con un esempio costruito dall'inizio alla
 > fine? Dimmi il tema e te la apro (es. "aiuto sui dati"), oppure la trovi qui:
-> https://github.com/CinaWeb/AIOS-Datapyx/blob/main/GUIDE.md
+> https://github.com/CinaWeb/AIOS-AserMind/blob/main/GUIDE.md
 
 Se l'utente chiede il dettaglio di una sezione, **leggi il file**
 `${CLAUDE_PLUGIN_ROOT}/GUIDE.md` e riportane la parte pertinente. Se quel percorso
