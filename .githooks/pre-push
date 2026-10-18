@@ -2,7 +2,9 @@
 # Hook automatico pre-push (eseguito ad ogni git push sul repo principale AsernetBrain):
 # Committa eventuali modifiche in personal/, fonde (merge) origin/main del sub-repo e fa push su /srv/git/personal/<utente>.git.
 
-if [ -d "personal/.git" ]; then
+REMOTE_NAME="${1:-origin}"
+
+if [ "$REMOTE_NAME" = "origin" ] && [ -d "personal/.git" ]; then
   echo "[AsernetBrain Hook] Merge e push automatico del sub-repo personale (personal/)..."
   git -C personal add -A 2>/dev/null || true
   if [ -n "$(git -C personal status --porcelain 2>/dev/null)" ]; then
