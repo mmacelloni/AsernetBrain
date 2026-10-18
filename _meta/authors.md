@@ -30,12 +30,14 @@ Tutte le identità umane aziendali utilizzano l'email nominativa con dominio **`
 | id | tipo | nome | email git (`@asernet.it`) | Cartella Actions Personali |
 |---|---|---|---|---|
 | `marco` | human | Marco Macelloni | m.macelloni@asernet.it | `actions/users/marco/` |
-| `sara` | human | Sara Romano | s.romano@asernet.it | `actions/users/sara/` |
+| `raffaele` | human | Raffaele Tortora | r.tortora@asernet.it | `actions/users/raffaele/` |
+| `domenico` | human | Domenico Palma Valente | d.palma@asernet.it | `actions/users/domenico/` |
+| `pasquale` | human | Pasquale Cipriani | p.cipriani@asernet.it | `actions/users/pasquale/` |
 | `anna` | human | Anna Angeloro | a.angeloro@asernet.it | `actions/users/anna/` |
 | `claude-ingest` | agent | Claude — operazioni di `/ingest` sul vault | — | — |
 
 ## Regola di disambiguazione
 
 - **`authored_by`** = chi ha prodotto il testo (se l'ha scritto un LLM nella Zona Governata è `claude-ingest`).
-- **`reviewed_by`** = l'umano (`marco`, `sara`, `anna`) che ha validato la pagina. Un agente non valida mai sé stesso.
+- **`reviewed_by`** = l'umano (`marco`, `raffaele`, `domenico`, `pasquale`, `anna`) che ha validato la pagina. Un agente non valida mai sé stesso.
 - **`provenance.user`** = l'identità umana sul cui disco locale risiede il file originale in `raw/` (poiché `raw/` resta locale e non viene committato in Git).

@@ -16,7 +16,7 @@
   - **Admin VPS:** `ubuntu` (`asernet-admin`, chiave separata solo admin)
   - **Utente Git Colleghi:** `git` (`asernet-git`, confinato in `/usr/bin/git-shell` con 1 chiave nominativa per utente/macchina in `/home/git/.ssh/authorized_keys`)
   - **Percorso Bare Repo:** `git@152.228.134.98:/srv/git/asernetbrain.git`
-  - **Convenzione Email Utenti (`_meta/authors.md`):** email aziendali nominative `@asernet.it` (`m.macelloni@asernet.it`, `s.romano@asernet.it`, `a.angeloro@asernet.it`).
+  - **Convenzione Email Utenti (`_meta/authors.md`):** email aziendali nominative `@asernet.it` (`m.macelloni@asernet.it`, `r.tortora@asernet.it`, `d.palma@asernet.it`, `p.cipriani@asernet.it`, `a.angeloro@asernet.it`).
 
 ---
 

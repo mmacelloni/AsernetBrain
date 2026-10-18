@@ -34,7 +34,7 @@ Cosa fa `tools/setup.js` in automatico sulla macchina del collega:
 AsernetBrain/
 ├── CLAUDE.md                   # Costituzione globale + Query Router Zero-Friction
 ├── _meta/
-│   ├── authors.md              # Registro identità aziendali (marco, sara, anna) + agenti
+│   ├── authors.md              # Registro identità aziendali (marco, raffaele, domenico, pasquale, anna) + agenti
 │   └── roadmap-evoluzioni.md   # Evoluzioni future (es. DB condiviso su piattaforma per dati tabellari)
 ├── raw/                        # [SOLO LOCALE, ignorata da Git] Fonti grezze mai cancellate
 │   ├── wiki/                   # Documenti grezzi per la wiki
@@ -65,7 +65,7 @@ AsernetBrain/
 ├── actions/                    # AutomationOS (DOE) — Azioni divise per scope
 │   ├── README.md               # Regole DOE e Metodo 3C
 │   ├── shared/                 # Automazioni condivise dal team (con gate 3C ≥ 9/10)
-│   └── users/<id>/             # Automazioni personali per singolo collega (marco, sara, anna)
+│   └── users/<id>/             # Automazioni personali per singolo collega (marco, raffaele, domenico, pasquale, anna)
 ├── personal/                   # [SOLO LOCALE, ignorata da Git] L'angolino riservato dell'utente
 │   ├── README.md               # Guida allo spazio privato e al collegamento ClickUp personale
 │   ├── index.md                # [SOLO LOCALE] Cruscotto privato, obiettivi e note rapide
