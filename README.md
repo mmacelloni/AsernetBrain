@@ -247,23 +247,29 @@ Se hai installato Claude Desktop *dopo* aver lanciato il setup (o se hai spostat
 
 ---
 
-### 5.2 Attivare Cartella di Lavoro, Skill e Comandi (`/prime`, `/ingest`, `/pubblica`) in Claude Desktop
+### 5.2 Come configurare il Progetto "AsernetBrain" dentro Claude Desktop
 
-Oltre ai 2 server MCP, per permettere a **Claude Desktop** di leggere/modificare i file della cartella `AsernetBrain` e usare tutti i comandi slash (`/prime`, `/ingest`, `/chiedi`, `/client-brief`, `/debrief`, `aios`, `datapyx`, `/challenge`, `/pubblica`):
+In **Claude Desktop** **non serve installare alcun plugin separato** dentro il Progetto: il server MCP **`vault-asernet`** (registrato automaticamente da `setup.js`) espone già a Claude:
+- **Lettura e scrittura diretta dei file sul disco** (`vault_read_file`, `vault_write_file`, `vault_list_dir`)
+- **Sincronizzazione Git `main` + `personal/`** (`vault_sync`, `vault_publish`, `vault_status`)
+- **Tutti i 21 Comandi e Skill di AsernetBrain** (`prime`, `ingest`, `chiedi`, `client-brief`, `debrief`, `challenge`, `pubblica`, `lint`, `aios`, `datapyx`, ecc.) direttamente come **Prompt MCP**!
 
-1. **Seleziona la Modalità "Cowork" (o "Code") in Claude Desktop:**
-   - Nella barra laterale sinistra di Claude Desktop, passa dalla scheda *Chat* alla scheda **Cowork** (o **Code**).
-   - Clicca sul selettore della cartella di lavoro (in basso o al centro) e seleziona la tua cartella locale **`AsernetBrain`**.
-   - In questo modo Claude legge automaticamente la costituzione `CLAUDE.md` del progetto e ha accesso diretto ai file locali (`wiki/`, `clients/`, `topics/`, `personal/`, `raw/`).
+Ecco i **3 passaggi** per configurare il tuo Progetto **`AsernetBrain`** in Claude Desktop:
 
-2. **Installa il Plugin locale `asernet-brain` (Una Tantum in Claude Desktop):**
-   - Il repository contiene già il manifesto `.claude-plugin/plugin.json` con tutte le **Skill** (`.claude/skills/`) e i **Comandi** (`.claude/commands/`).
-   - In Claude Desktop vai su **Personalizza (Customize) → Plugin (Plugins)** nella barra laterale.
-   - Clicca su **Aggiungi plugin da cartella locale / Install local plugin** e seleziona la cartella **`AsernetBrain`** (dove si trova `.claude-plugin/plugin.json`).
-   - Una volta attivo, digitando **`/`** nella chat di Claude Desktop compariranno tutti i comandi aziendali (`/prime`, `/ingest`, `/chiedi`, `/client-brief`, `/debrief`, `/challenge`, `/contribuisci`, `/rivedi-proposte`, `/lint`, `/pubblica`).
-
-3. **Se usi Claude Code da Terminale o VS Code / Cursor:**
-   - Ti basta aprire il terminale nella cartella `AsernetBrain` e digitare `claude`: il file `.mcp.json` e la cartella `.claude/` presenti nella root del progetto attivano automaticamente sia i 2 server MCP (`vault-asernet` e `qmd-asernet`) sia tutti i comandi `/`.
+1. **Crea il Progetto `AsernetBrain` in Claude Desktop:**
+   - Nella colonna di sinistra clicca su **Progetti (Projects) → Nuovo Progetto (New Project)** e chiamalo **`AsernetBrain`**.
+2. **Imposta le "Istruzioni del Progetto" (Project Instructions):**
+   - A destra, clicca su **Imposta istruzioni del progetto (Set project instructions)** e incolla queste 4 righe (oppure allega/incolla il file `CLAUDE.md`):
+     ```text
+     Sei connesso al repository locale AsernetBrain tramite i server MCP `vault-asernet` e `qmd-asernet`.
+     All'inizio della prima richiesta esegui `vault_read_file` su "CLAUDE.md" per caricare le regole operative complete.
+     Usa `qmd-asernet` (`query` / `get`) per le ricerche e `vault-asernet` (`vault_read_file`, `vault_write_file`, `vault_list_dir`, `vault_sync`, `vault_publish`) per leggere, modificare e sincronizzare i file sul disco locale.
+     Rispondi sempre in italiano.
+     ```
+3. **Come richiamare i Comandi (`/prime`, `/ingest`, `/client-brief`, `/pubblica`) nella Chat del Progetto:**
+   - Nel box dove scrivi il messaggio su Claude Desktop, clicca sul pulsante **`+`** (in basso a sinistra nel box di scrittura) → **`Aggiungi da vault-asernet` (Add from vault-asernet)**:
+   - Ti apparirà il menu con tutti i comandi pronti (`prime`, `ingest`, `chiedi`, `client-brief`, `debrief`, `challenge`, `pubblica`, `aios`, `datapyx`, ecc.)!
+   - In alternativa, puoi anche semplicemente scrivere nella chat: *"Esegui /prime"* oppure *"Esegui /pubblica"* e Claude userà automaticamente i tool di `vault-asernet`.
 
 ---
 

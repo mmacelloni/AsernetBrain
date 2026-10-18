@@ -1055,6 +1055,124 @@ function vaultStashList() {
   };
 }
 
+function safeVaultPath(relPath) {
+  assertVault();
+  const cleanRel = String(relPath || '').replace(/^[/\\]+/, '');
+  const resolved = path.resolve(VAULT_PATH, cleanRel);
+  const vaultRoot = path.resolve(VAULT_PATH);
+  if (resolved !== vaultRoot && !resolved.startsWith(vaultRoot + path.sep)) {
+    throw new Error(`Percorso fuori dal vault non consentito: ${relPath}`);
+  }
+  const relFromRoot = path.relative(vaultRoot, resolved).replace(/\\/g, '/');
+  if (relFromRoot === '.git' || relFromRoot.startsWith('.git/') || relFromRoot.startsWith('personal/.git/')) {
+    throw new Error(`Accesso diretto a .git non consentito: usa i tool vault_status / vault_sync / vault_publish.`);
+  }
+  return { resolved, relFromRoot: relFromRoot || '.' };
+}
+
+function vaultReadFile({ file_path }) {
+  const { resolved, relFromRoot } = safeVaultPath(file_path);
+  if (!fs.existsSync(resolved)) {
+    return { exists: false, path: relFromRoot, error: 'File non trovato nel vault.' };
+  }
+  const stat = fs.statSync(resolved);
+  if (stat.isDirectory()) {
+    return vaultListDir({ dir_path: relFromRoot });
+  }
+  const content = fs.readFileSync(resolved, 'utf8');
+  return { exists: true, path: relFromRoot, size: stat.size, content };
+}
+
+function vaultWriteFile({ file_path, content }) {
+  const { resolved, relFromRoot } = safeVaultPath(file_path);
+  fs.mkdirSync(path.dirname(resolved), { recursive: true });
+  fs.writeFileSync(resolved, String(content ?? ''), 'utf8');
+  return {
+    result: 'WRITTEN',
+    path: relFromRoot,
+    bytes: Buffer.byteLength(String(content ?? ''), 'utf8'),
+    note: 'File salvato nel vault locale. Usa vault_publish (o /pubblica) per committare e sincronizzare con la VPS.',
+  };
+}
+
+function vaultListDir({ dir_path }) {
+  const { resolved, relFromRoot } = safeVaultPath(dir_path || '.');
+  if (!fs.existsSync(resolved)) {
+    return { exists: false, path: relFromRoot, entries: [] };
+  }
+  const entries = fs
+    .readdirSync(resolved, { withFileTypes: true })
+    .filter((d) => d.name !== '.git' && d.name !== 'node_modules')
+    .map((d) => ({
+      name: d.name,
+      type: d.isDirectory() ? 'dir' : 'file',
+      path: relFromRoot === '.' ? d.name : `${relFromRoot}/${d.name}`,
+    }));
+  return { exists: true, path: relFromRoot, entries };
+}
+
+function discoverPrompts() {
+  if (!VAULT_PATH) return [];
+  const prompts = [];
+  const parseFrontmatterDesc = (raw, fallback) => {
+    const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (m) {
+      const dm = m[1].match(/^description:\s*(.+)$/m);
+      if (dm) return dm[1].trim().replace(/^["']|["']$/g, '');
+    }
+    return fallback;
+  };
+
+  // 1. Comandi in .claude/commands/*.md
+  const cmdDir = path.join(VAULT_PATH, '.claude', 'commands');
+  if (fs.existsSync(cmdDir)) {
+    for (const f of fs.readdirSync(cmdDir)) {
+      if (!f.endsWith('.md')) continue;
+      const name = f.replace(/\.md$/, '');
+      const full = path.join(cmdDir, f);
+      const raw = fs.readFileSync(full, 'utf8');
+      prompts.push({
+        name,
+        description: parseFrontmatterDesc(raw, `Comando AsernetBrain /${name}`),
+        filePath: full,
+        arguments: [
+          {
+            name: 'argomento',
+            description: 'Cliente, file o contesto opzionale (es. nome cliente o domanda)',
+            required: false,
+          },
+        ],
+      });
+    }
+  }
+
+  // 2. Skill in .claude/skills/*/SKILL.md
+  const skillsDir = path.join(VAULT_PATH, '.claude', 'skills');
+  if (fs.existsSync(skillsDir)) {
+    for (const d of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      const full = path.join(skillsDir, d.name, 'SKILL.md');
+      if (!fs.existsSync(full)) continue;
+      if (prompts.some((p) => p.name === d.name)) continue;
+      const raw = fs.readFileSync(full, 'utf8');
+      prompts.push({
+        name: d.name,
+        description: parseFrontmatterDesc(raw, `Skill AsernetBrain: ${d.name}`),
+        filePath: full,
+        arguments: [
+          {
+            name: 'argomento',
+            description: 'Argomento, cliente o file su cui applicare la skill',
+            required: false,
+          },
+        ],
+      });
+    }
+  }
+
+  return prompts;
+}
+
 // ------------------------------------------------------------- protocollo
 
 const TOOLS = [
@@ -1068,14 +1186,14 @@ const TOOLS = [
   {
     name: 'vault_sync',
     description:
-      'Sincronizza il vault con git pull --ff-only. Se il working tree blocca il fast-forward, mette via i soli file bloccanti con git stash push -u, rifà il ff, e poi applica una guardia: riapplica lo stash solo se non tocca pagine di contenuto che il pull ha cambiato; altrimenti lascia lo stash intatto e restituisce il referto. Non fa mai un merge non richiesto e non scarta mai uno stash.',
+      'Sincronizza il vault (main + sub-repo personal/) con la VPS e aggiorna l\'indice QMD locale. Da eseguire ad ogni /prime o inizio sessione.',
     inputSchema: { type: 'object', properties: {} },
     handler: vaultSync,
   },
   {
     name: 'vault_publish',
     description:
-      'Chiude un\'operazione: verifica che i file passati non siano stati toccati anche dall\'altra identità (L ∩ R), e solo se la verifica passa committa, fonde e spinge. Se rileva sovrapposizione non scrive niente e restituisce il referto.',
+      'Chiude un\'operazione (/pubblica): verifica che i file passati non siano stati toccati anche da un altro collega (L ∩ R), committa, fonde e spinge sia main sia il sub-repo personal/ sulla VPS, aggiornando QMD.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1095,9 +1213,60 @@ const TOOLS = [
     handler: vaultPublish,
   },
   {
+    name: 'vault_read_file',
+    description:
+      'Legge il contenuto di un file (o elenca una cartella) dentro il vault locale AsernetBrain (wiki/, clients/, topics/, personal/, raw/, _meta/, CLAUDE.md).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        file_path: {
+          type: 'string',
+          description: 'Percorso relativo alla radice di AsernetBrain (es. "CLAUDE.md", "clients/index.md", "personal/index.md").',
+        },
+      },
+      required: ['file_path'],
+    },
+    handler: vaultReadFile,
+  },
+  {
+    name: 'vault_write_file',
+    description:
+      'Crea o aggiorna un file dentro il vault locale AsernetBrain (wiki/, clients/, topics/, personal/, actions/).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        file_path: {
+          type: 'string',
+          description: 'Percorso relativo alla radice di AsernetBrain (es. "clients/acme/state.md", "personal/index.md").',
+        },
+        content: {
+          type: 'string',
+          description: 'Contenuto completo da scrivere nel file.',
+        },
+      },
+      required: ['file_path', 'content'],
+    },
+    handler: vaultWriteFile,
+  },
+  {
+    name: 'vault_list_dir',
+    description:
+      'Elenca file e sottocartelle di una directory del vault locale AsernetBrain (es. ".", "clients", "wiki", "personal").',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        dir_path: {
+          type: 'string',
+          description: 'Percorso relativo della cartella (default ".").',
+        },
+      },
+    },
+    handler: vaultListDir,
+  },
+  {
     name: 'vault_unlock',
     description:
-      'Mette da parte un .git/index.lock abbandonato, che blocca ogni scrittura sull\'indice e impedisce a vault_publish di partire. Rinomina il lock, non lo cancella. Senza confirm non fa niente e restituisce NEEDS_CONFIRM: la conferma va chiesta all\'utente, verificando che nessun client git stia lavorando sul repository. Rifiuta comunque se il lock è più recente di 60 secondi.',
+      'Mette da parte un .git/index.lock abbandonato, che blocca ogni scrittura sull\'indice e impedisce a vault_publish di partire.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1112,14 +1281,14 @@ const TOOLS = [
   {
     name: 'vault_setup',
     description:
-      'Prepara questo clone del vault: definisce in .git/config il driver di merge `ours` che il .gitattributes dichiara per gli index.md, senza il quale un merge lascia marcatori di conflitto dentro un file derivato. Scrive solo --local, mai --global: nessun altro repository della macchina viene toccato. Idempotente: se il driver è già attivo non scrive niente e lo dice.',
+      'Prepara questo clone del vault: definisce in .git/config il driver di merge `ours` per gli index.md/log.md.',
     inputSchema: { type: 'object', properties: {} },
     handler: vaultSetup,
   },
   {
     name: 'vault_stash_list',
     description:
-      'Elenca gli stash presenti e i file dentro ciascuno, tracciati e non tracciati. Serve a ispezionare quello che una guardia di vault_sync ha lasciato indietro. Sola lettura.',
+      'Elenca gli stash presenti e i file dentro ciascuno, tracciati e non tracciati.',
     inputSchema: { type: 'object', properties: {} },
     handler: vaultStashList,
   },
@@ -1138,8 +1307,47 @@ function handle(req) {
       id,
       result: {
         protocolVersion: (params && params.protocolVersion) || '2024-11-05',
-        capabilities: { tools: {} },
-        serverInfo: { name: 'vault-mcp', version: '1.0.0' },
+        capabilities: { tools: {}, prompts: {} },
+        serverInfo: { name: 'vault-asernet', version: '1.3.0' },
+      },
+    });
+  }
+
+  if (method === 'prompts/list') {
+    const prompts = discoverPrompts().map(({ name, description, arguments: args }) => ({
+      name,
+      description,
+      arguments: args,
+    }));
+    return send({
+      jsonrpc: '2.0',
+      id,
+      result: { prompts },
+    });
+  }
+
+  if (method === 'prompts/get') {
+    const pName = params && params.name;
+    const found = discoverPrompts().find((p) => p.name === pName);
+    if (!found) {
+      return send({ jsonrpc: '2.0', id, error: { code: -32602, message: `Prompt non trovato: ${pName}` } });
+    }
+    const raw = fs.readFileSync(found.filePath, 'utf8');
+    const argVal = params && params.arguments && params.arguments.argomento ? String(params.arguments.argomento) : '';
+    const text = argVal
+      ? `Esegui il comando/skill "${found.name}" su AsernetBrain con argomento: ${argVal}\n\n---\n${raw}`
+      : `Esegui il comando/skill "${found.name}" su AsernetBrain.\n\n---\n${raw}`;
+    return send({
+      jsonrpc: '2.0',
+      id,
+      result: {
+        description: found.description,
+        messages: [
+          {
+            role: 'user',
+            content: { type: 'text', text },
+          },
+        ],
       },
     });
   }
