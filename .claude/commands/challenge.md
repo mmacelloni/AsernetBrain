@@ -56,11 +56,11 @@ reale, punti di leva, scenari) e dichiara esplicitamente cosa stai sfidando.
 
 ## Cattura (dopo il verdetto)
 
-Se il verdetto è 🔴 (o 🟡 con una lacuna netta), **invoca la skill `aios-learn`**
+Se il verdetto è 🔴 (o 🟡 con una lacuna netta), **invoca la skill `client-learn`**
 per valutare se catturare una lezione: il motivo per cui la tesi non ha retto è
-spesso un pattern sul cliente che vale la pena ricordare. `aios-learn` decide se è
+spesso un pattern sul cliente che vale la pena ricordare. `client-learn` decide se è
 una lezione di business o una frizione di processo e chiede conferma prima di
-scrivere. Non scrivere tu direttamente: passa il segnale ad `aios-learn`.
+scrivere. Non scrivere tu direttamente: passa il segnale ad `client-learn`.
 
 ## Regole
 

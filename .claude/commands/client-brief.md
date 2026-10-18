@@ -1,10 +1,10 @@
 ---
-description: "Brief di intelligence prima di una call con un cliente: timeline, promesse vs consegne, pendenze, ultima conversazione e 3 punti d'agenda. Riusa contesto + riunioni + dati dell'AIOS."
+description: "Brief di intelligence prima di una call con un cliente: timeline, promesse vs consegne, pendenze, ultima conversazione e 3 punti d'agenda. Riusa contesto + riunioni + dati dell'AsernetBrain."
 argument-hint: "Nome del cliente su cui preparare il brief"
 ---
 
 Prepara un **brief pre-call di 5 minuti** su un cliente, leggendo tutto ciò che
-l'AIOS sa di lui. Serve al consulente per arrivare alla riunione preparato.
+l'AsernetBrain sa di lui. Serve al consulente per arrivare alla riunione preparato.
 Rispondi in italiano, denso e scremato — è un brief, non un report.
 
 Cliente: **$ARGUMENTS**

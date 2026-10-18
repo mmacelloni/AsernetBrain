@@ -31,7 +31,7 @@ Rispondi sempre in italiano. Esegui questi passi in ordine all'inizio della sess
      - prime 20 righe di `log.md` (ultime attività/riunioni)
   2. Filtra da `personal/tasks-clickup.md` eventuali task personali dell'utente collegati a questo cliente.
   3. Presenta un riepilogo unificato: stato condiviso del cliente + **i tuoi task personali ClickUp su questo cliente**, metriche chiave ed eventuali proposte in attesa (`clients/<slug>/proposals/`).
-  4. **Prospettive proattive:** invoca internamente la skill `aios-learn` per verificare se emergono prospettive proattive sul cliente.
+  4. **Prospettive proattive:** invoca internamente la skill `client-learn` per verificare se emergono prospettive proattive sul cliente.
 - **Se `$ARGUMENTS` è vuoto (sessione generale AsernetBrain):**
   1. Leggi `wiki/index.md`, `clients/index.md` e le prime 5 entry di `wiki/log.md` e `clients/log.md`.
   2. Saluta l'utente (`<id>`) con un riepilogo sintetico che unisce **Aziendale + Personale**:

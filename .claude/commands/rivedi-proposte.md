@@ -1,5 +1,5 @@
 ---
-description: "Rivede la coda dei contributi che contraddicono quello che l'AIOS già sa (contesto o lezioni): per ognuno decidi se promuoverlo nelle lezioni, rifiutarlo o riformularlo. Per il curatore."
+description: "Rivede la coda dei contributi che contraddicono quello che l'AsernetBrain già sa (contesto o lezioni): per ognuno decidi se promuoverlo nelle lezioni, rifiutarlo o riformularlo. Per il curatore."
 argument-hint: "Nessuno"
 ---
 
@@ -11,9 +11,9 @@ Cerca in `clients/*/proposals/*.md` (o in `clients/<slug>/proposals/*.md` se l'u
 - Altrimenti elencale: cliente, autore, data, contributo in una riga, cosa contraddice.
 
 ## 2. Rivedile una alla volta
-**Invoca la skill `aios-learn`** (sezione "Revisione" di `references/operator-mode.md`) e segui il suo protocollo: per ogni proposta mostra contributo, regola che ne deriverebbe e riferimento del core contraddetto, poi chiedi al curatore **promuovi / rifiuta / modifica** e applica la scelta.
+**Invoca la skill `client-learn`** (sezione "Revisione" di `references/operator-mode.md`) e segui il suo protocollo: per ogni proposta mostra contributo, regola che ne deriverebbe e riferimento del core contraddetto, poi chiedi al curatore **promuovi / rifiuta / modifica** e applica la scelta.
 
-Non duplicare qui i formati né la logica di scrittura: stanno in `aios-learn`.
+Non duplicare qui i formati né la logica di scrittura: stanno in `client-learn`.
 
 ## 3. Chiudi
 Riepiloga in poche righe: quante promosse, quante rifiutate, quante restano

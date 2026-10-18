@@ -5,7 +5,7 @@
 ---
 
 ## [2026-10-17] init | marco | Creazione e allineamento architettura AsernetBrain (v0.1.0)
-**Operazione:** Fusione di **FullBrain**, **AsernetOS (`v1.3.0`)** e **AIOS-AserMind (`v0.7.1`)** nel nuovo repository `AsernetBrain`.
+**Operazione:** Fusione di **FullBrain**, **AsernetOS (`v1.3.0`)** e **AserMind (`v0.7.1`)** nel nuovo repository `AsernetBrain`.
 **Componenti completati:**
 - Struttura multi-dominio (`wiki/`, `topics/`, `clients/<slug>/`, `actions/{shared,users/<id>}`, `personal/`, `_meta/`).
 - `raw/` locale esclusa da Git e mai cancellata dopo l'ingest, con tracciamento `provenance: [{ user, raw_path, sha256, date }]`.

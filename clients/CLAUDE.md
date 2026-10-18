@@ -1,6 +1,6 @@
-# Clients — Schema Operativo (FullBrain + AIOS)
+# Clients — Schema Operativo (FullBrain + AsernetBrain)
 
-Ogni cliente vive in una propria sottocartella isolata `clients/<slug>/` che unisce la scheda anagrafica/storica di FullBrain con i moduli operativi di AIOS (DataOS, IntelOS, AserMind).
+Ogni cliente vive in una propria sottocartella isolata `clients/<slug>/` che unisce la scheda anagrafica/storica di FullBrain con i moduli operativi di AsernetBrain (DataOS, IntelOS, AserMind).
 
 ---
 

@@ -1,10 +1,10 @@
 ---
-description: "Debrief di fine giornata: Claude fa qualche domanda sui progressi e aggiorna il contesto dell'AIOS (context + history.md). Chiude il ciclo /prime → lavoro → /debrief."
+description: "Debrief di fine giornata: Claude fa qualche domanda sui progressi e aggiorna il contesto dell'AsernetBrain (context + history.md). Chiude il ciclo /prime → lavoro → /debrief."
 argument-hint: "Nota rapida sulla giornata (opzionale)"
 ---
 
 È fine sessione. Il tuo compito è **consolidare i progressi della giornata**
-nell'AIOS del cliente (la cartella corrente), così domani `/prime` riparte dallo
+nell'AsernetBrain del cliente (la cartella corrente), così domani `/prime` riparte dallo
 stato aggiornato e non da dove eravamo ieri. Rispondi in italiano.
 
 Nota libera dell'utente (se presente): **$ARGUMENTS**
@@ -18,7 +18,7 @@ Nota libera dell'utente (se presente): **$ARGUMENTS**
 
 ## 2. Intervista di debrief — UNA domanda alla volta
 Non aspettare che l'utente racconti: **fai tu le domande**, mirate sullo stato che
-hai appena letto. Copri (adatta all'AIOS reale, salta il non pertinente):
+hai appena letto. Copri (adatta all'AsernetBrain reale, salta il non pertinente):
 
 1. **Cosa è avanzato oggi?** — progetti/clienti che si sono mossi e come.
 2. **Cosa si è bloccato o è in ritardo?** — e perché.
@@ -28,9 +28,9 @@ hai appena letto. Copri (adatta all'AIOS reale, salta il non pertinente):
 
 Una domanda alla volta, brevi. Sfida ciò che non torna (una decisione che
 contraddice la strategia nei file → chiedi conferma prima di registrarla). Se la
-contraddizione è **confermata** dall'utente, **invoca la skill `aios-learn`**: può
+contraddizione è **confermata** dall'utente, **invoca la skill `client-learn`**: può
 essere una lezione da ricordare (la strategia sta cambiando, o è emersa una regola
-implicita). `aios-learn` classifica e chiede conferma prima di scrivere — non
+implicita). `client-learn` classifica e chiede conferma prima di scrivere — non
 scrivere tu direttamente in `lezioni.md`.
 
 ## 3. Recap prima di scrivere

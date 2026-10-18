@@ -5,7 +5,7 @@
 ## ✅ Completato (Sessioni 2026-10-17 / 2026-10-18)
 - [x] **Struttura base `AsernetBrain`** (`wiki/`, `topics/`, `clients/<slug>/`, `actions/{shared,users}`, `personal/`, `_meta/`).
 - [x] **Gestione `raw/` locale con Provenienza**: esclusa da `.gitignore`, mai cancellata dopo `/ingest`, tracciata via `provenance: [{ user, raw_path, sha256, date }]`.
-- [x] **Porting e unificazione AIOS (`v0.7.1`) + AsernetOS (`v1.3.0`)**: tutte le skill e i comandi allineati a `clients/<slug>/` e `actions/`.
+- [x] **Porting e unificazione AsernetBrain (`v0.7.1`) + AsernetOS (`v1.3.0`)**: tutte le skill e i comandi allineati a `clients/<slug>/` e `actions/`.
 - [x] **Zero-Friction Retrieval (stile FullBrain)**: rimossi i blocchi su `/prime` e `.claude/context/`; risoluzione automatica dei clienti da qualsiasi cartella tramite `clients/index.md` e `qmd-asernet`.
 - [x] **Auto-Installer Locale per i Colleghi (`tools/setup.js`)**: registra `vault-asernet` (Git MCP) + `qmd-asernet` (QMD MCP locale `--index asernetbrain` con `INDEX_PATH` dedicato) e auto-aggiorna QMD su `vault_sync` e `vault_publish`.
 - [x] **Angolino Riservato Personale (`personal/`)**: escluso da Git ma indicizzato dal QMD locale (`asernet-personal`) per i task ClickUp personali e gli appunti privati del singolo utente.
@@ -24,6 +24,6 @@
 ---
 
 ## 🔜 Prossimi Passi
-- [ ] **5. Onboarding Primo Cliente Pilota in `clients/<slug>/`**: testare il flusso completo (`aios-context`, `asermind`, query BigQuery ad hoc in `connectors/bigquery_queries.py`).
+- [ ] **5. Onboarding Primo Cliente Pilota in `clients/<slug>/`**: testare il flusso completo (`client-context`, `asermind`, query BigQuery ad hoc in `connectors/bigquery_queries.py`).
 - [ ] **6. Connettore ClickUp Personale (`personal/connectors/clickup_personal.py`)**: creare lo script standard che popola `personal/tasks-clickup.md` per ciascun utente.
 - [ ] **7. Abilitazione Chiavi SSH Colleghi (`raffaele`, `domenico`, `pasquale`, `anna`)**: aggiungere le rispettive chiavi `.pub` in `/home/git/.ssh/authorized_keys` man mano che effettuano il primo setup.

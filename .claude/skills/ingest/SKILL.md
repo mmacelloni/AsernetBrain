@@ -45,7 +45,7 @@ In **AsernetBrain** la cartella `raw/` è **in `.gitignore` e NON viene mai canc
 - **File:** `<raw_path>`
 - **Utente detentore (`user`):** `<id>`
 - **SHA-256 (12 char):** `<sha256>`
-- **Destinazione:** `wiki/` (Zona Governata OKF) | `clients/<slug>/` (Zona Operativa AIOS)
+- **Destinazione:** `wiki/` (Zona Governata OKF) | `clients/<slug>/` (Zona Operativa AsernetBrain)
 
 ## Takeaway principali
 1. … (3-5 punti chiave)

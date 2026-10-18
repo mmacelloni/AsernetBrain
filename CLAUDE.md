@@ -3,7 +3,7 @@
 Questo file governa **AsernetBrain**, il brain aziendale multi-utente che unisce:
 - la struttura multi-dominio e la disciplina Git di **FullBrain**;
 - il connettore MCP Git (`vault-mcp`), il registro identità e la verifica di **AsernetOS**;
-- i moduli operativi di **AIOS-AserMind** (ContextOS, DataOS, IntelOS, AutomationOS DOE, DashboardOS, AserMind).
+- i moduli operativi di **AserMind** (ContextOS, DataOS, IntelOS, AutomationOS DOE, DashboardOS, AserMind).
 
 ---
 
@@ -24,7 +24,7 @@ AsernetBrain/
 │   ├── concepts/               # Metodologie, procedure e SOP aziendali
 │   └── queries/                # Analisi e risposte archiviate
 ├── topics/                     # Conoscenze verticali tecniche (networking, dev, marketing)
-├── clients/                    # ZONA OPERATIVA (AIOS) — Un'azienda = una sottocartella
+├── clients/                    # ZONA OPERATIVA (AsernetBrain) — Un'azienda = una sottocartella
 │   ├── CLAUDE.md               # Schema operativo clienti + DataOS/IntelOS per cliente
 │   ├── index.md                # Catalogo globale clienti (con routing ID)
 │   ├── log.md                  # Log globale attività clienti
@@ -71,7 +71,7 @@ AsernetBrain/
    - Ogni pagina ha frontmatter con `authored_by`, `reviewed_by` (confrontati con `_meta/authors.md`) e `provenance`.
    - L'agente non può validare sé stesso (`authored_by` ≠ `reviewed_by`).
    - Soglia di astensione: se il wiki non copre una procedura interna, lo si dichiara senza inventare.
-3. **Zona Operativa (`clients/`, `actions/`) — Regime AIOS:**
+3. **Zona Operativa (`clients/`, `actions/`) — Regime AsernetBrain:**
    - Pensata per la velocità operativa quotidiana (`/prime`, `/debrief`, `/asermind`, `/challenge`, `/refresh-data`).
    - Nessun blocco `reviewed_by` obbligatorio per aggiornare stato, debrief o metriche di un cliente, ma quando si acquisisce un documento in `raw/clients/<slug>/` si traccia sempre il blocco `provenance` (`user` + `raw_path`).
    - Separazione netta tra **contesto stabile** (`index.md`) e **contesto volatile** (`state.md` + `key-metrics.md`).
@@ -102,7 +102,7 @@ AsernetBrain/
 > **Regola fondamentale:** L'utente **NON è mai obbligato** a lanciare `/prime` né a spostarsi con `cd` dentro `clients/<slug>/` prima di fare una domanda o invocare un comando su un cliente, sui propri task personali, su un dominio tecnico o su una procedura aziendale.
 
 ### 4.1 Auto-Risoluzione del Cliente + Angolino Personale da qualsiasi cartella
-Quando l'utente nomina un cliente o chiede cosa deve fare (in chat libera o in comandi come `/client-brief`, `/debrief`, `/challenge`, `/contribuisci`, `/rivedi-proposte`, `aios`, `asermind`), anche se si trova nella radice di `AsernetBrain` e **non ha eseguito `/prime`**:
+Quando l'utente nomina un cliente o chiede cosa deve fare (in chat libera o in comandi come `/client-brief`, `/debrief`, `/challenge`, `/contribuisci`, `/rivedi-proposte`, `onboarding`, `asermind`), anche se si trova nella radice di `AsernetBrain` e **non ha eseguito `/prime`**:
 1. **Individua lo `<slug>` del cliente** cercando in `clients/index.md` oppure interrogando il server MCP locale `qmd-asernet` (`-c asernet-clients`).
 2. **Carica al volo il contesto condiviso del cliente** da `clients/<slug>/` (`index.md`, `state.md`, `purpose.md`, `key-metrics.md`, `log.md`).
 3. **Incrocia con l'Angolino Personale (`personal/`)** se la richiesta tocca task, scadenze o appunti dell'utente (leggendo `personal/tasks-clickup.md`, `personal/index.md` o interrogando `-c asernet-personal`).

@@ -291,7 +291,7 @@ const collections = [
   {
     name: 'asernet-clients',
     dir: path.join(VAULT_PATH, 'clients'),
-    context: 'Schede operative clienti Asernet (AIOS + AserMind): contesto stabile (index.md), stato volatile (state.md), diagnosi (purpose.md), metriche (key-metrics.md), contatti, progetti e log riunioni.',
+    context: 'Schede operative clienti Asernet (AsernetBrain + AserMind): contesto stabile (index.md), stato volatile (state.md), diagnosi (purpose.md), metriche (key-metrics.md), contatti, progetti e log riunioni.',
   },
   {
     name: 'asernet-topics',
