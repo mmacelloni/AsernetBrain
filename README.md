@@ -84,11 +84,58 @@ Get-Content "$HOME\.ssh\id_ed25519_asernetbrain.pub" | Set-Clipboard
 Get-Content "$HOME\.ssh\id_ed25519_asernetbrain.pub"
 ```
 
-> 📌 **Nota per l'Amministratore (abilitazione chiave su VPS):**
-> Una volta ricevuta la chiave pubblica `.pub` del collega (o di un tuo secondo dispositivo come il Mac), aggiungila su `asernet-admin` in `/home/git/.ssh/authorized_keys` preceduta da:
-> ```text
-> command="/usr/local/bin/asernet-git-guard <user_id>",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-ed25519 AAAA... commento
-> ```
+---
+
+### 2.B — Cosa fare sulla VPS dopo aver generato la chiave locale (Guida Admin)
+
+Sulla VPS (`152.228.134.98`) esistono **due livelli separati di accesso SSH**:
+1. **Accesso Git (`User git` → `/home/git/.ssh/authorized_keys`)**: serve a tutti gli utenti (`marco`, `raffaele`, `domenico`, `pasquale`, `anna`) per fare `git clone`, `git pull` e `git push` su `asernetbrain.git` e sul proprio `personal/<user_id>.git`. Non dà accesso al terminale della VPS.
+2. **Accesso Amministratore (`User ubuntu` → `/home/ubuntu/.ssh/authorized_keys`)**: riservato a Marco per entrare nel terminale della VPS (`ssh asernet-admin`) e autorizzare nuove chiavi o fare manutenzione.
+
+Sulla VPS è installato il comando rapido **`asernet-add-key`** che automatizza tutto senza dover modificare a mano i file `authorized_keys`.
+
+#### CASO 1: Autorizzare un Collega (o un tuo nuovo PC solo per Git)
+1. Da un computer già autorizzato come Admin (il tuo **PC di Casa** o il tuo **MacBook Air**), apri il terminale ed entra nella VPS:
+   ```bash
+   ssh ubuntu@152.228.134.98
+   # (oppure: ssh asernet-admin)
+   ```
+2. Lancia il comando indicando l'`<user_id>` (`marco`, `raffaele`, `domenico`, `pasquale`, `anna`) e incollando tra virgolette la chiave pubblica `.pub` generata al punto 2:
+   ```bash
+   sudo asernet-add-key <user_id> "ssh-ed25519 AAAA... email@asernet.it"
+   ```
+   *(Lo script aggiunge automaticamente il prefisso di sicurezza `command="/usr/local/bin/asernet-git-guard <user_id>",no-port-forwarding...` e imposta i permessi corretti).*
+
+#### CASO 2: Configurare il tuo **PC dell'Ufficio** (Accesso Git + Accesso Admin alla VPS)
+Per poter usare sia `AsernetBrain` sia amministrare la VPS (`ssh asernet-admin`) dal **PC dell'Ufficio**, hai **due strade a scelta**:
+
+- **Metodo A (Consigliato — Chiave propria del PC Ufficio):**
+  1. Sul **PC dell'Ufficio**, esegui i comandi PowerShell del punto 2 per generare `~/.ssh/id_ed25519_asernetbrain` e aggiungi in `~/.ssh/config` anche l'host `asernet-admin`:
+     ```powershell
+     Add-Content -Path "$HOME\.ssh\config" -Value @"
+
+     Host asernet-admin
+         HostName 152.228.134.98
+         User ubuntu
+         IdentityFile ~/.ssh/id_ed25519_asernetbrain
+         IdentitiesOnly yes
+     "@
+     ```
+  2. Copia la chiave pubblica `id_ed25519_asernetbrain.pub` del PC Ufficio e, dal **Mac** o dal **PC di Casa**, lancia un unico comando verso la VPS che abilita il PC Ufficio **sia su Git (`marco`) sia come Admin (`admin`)**:
+     ```bash
+     ssh ubuntu@152.228.134.98 'sudo asernet-add-key marco "ssh-ed25519 AAAA... ufficio" && sudo asernet-add-key admin "ssh-ed25519 AAAA... ufficio"'
+     ```
+- **Metodo B (Alternativo — Copiare le chiavi dal PC di Casa al PC Ufficio):**
+  - Se non hai il Mac con te quando sei in ufficio, puoi copiare su una chiavetta USB (o gestore password sicuro come Bitwarden/1Password) i file dalla cartella `C:\Users\mazin\.ssh\` del PC di Casa alla cartella `C:\Users\<tuo_utente>\.ssh\` del PC Ufficio:
+    - `id_ed25519_asernet_admin` (e `.pub`) → chiave Admin VPS
+    - `id_ed25519_asernetbrain` (e `.pub`) → chiave Git `marco`
+    - le righe `Host asernet-admin` e `Host asernet-git` del file `config`
+
+#### Vedere tutte le chiavi attive sulla VPS
+In qualsiasi momento, per verificare quali computer e colleghi sono autorizzati sulla VPS:
+```bash
+ssh ubuntu@152.228.134.98 "sudo asernet-add-key list"
+```
 
 ---
 
