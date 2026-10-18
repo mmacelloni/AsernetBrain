@@ -19,10 +19,9 @@ raw/clients/*
 *.sqlite
 clients/**/data/*.db
 
-# Angolino Riservato dell'Utente (personal/): task ClickUp personali, appunti privati,
-# DB personale. Resta SOLO sul PC del singolo utente, non sale mai sul Git della VPS.
-personal/*
-!personal/README.md
+# Angolino Riservato dell'Utente (personal/): sub-repo Git privato isolato per utente
+# (/srv/git/personal/<utente>.git). Ignorato dal repo aziendale condiviso.
+personal/
 
 # Obsidian workspace & plugin locali per-macchina
 .trash/

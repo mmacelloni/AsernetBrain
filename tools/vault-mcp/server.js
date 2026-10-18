@@ -552,7 +552,26 @@ function vaultSync() {
  * macchina del collega dopo un `vault_sync` o un `vault_publish`. Non blocca
  * mai l'operazione Git se `qmd` non è ancora installato.
  */
+function syncPersonalSubrepo() {
+  try {
+    const personalDir = path.join(VAULT_PATH, 'personal');
+    if (!fs.existsSync(path.join(personalDir, '.git'))) return 'not_initialized';
+    execFileSync('git', ['pull', '--ff-only'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+    execFileSync('git', ['add', '-A'], { cwd: personalDir, stdio: 'ignore', timeout: 10000 });
+    const st = execFileSync('git', ['status', '--porcelain'], { cwd: personalDir, encoding: 'utf8', timeout: 10000 }).trim();
+    if (st) {
+      execFileSync('git', ['commit', '-m', `${new Date().toISOString().slice(0, 10)} | personal | Auto-sync personal workspace`], { cwd: personalDir, stdio: 'ignore', timeout: 10000 });
+      execFileSync('git', ['push', 'origin', 'main'], { cwd: personalDir, stdio: 'ignore', timeout: 15000 });
+      return 'synced_and_pushed';
+    }
+    return 'up_to_date';
+  } catch {
+    return 'skipped';
+  }
+}
+
 function qmdAutoUpdate() {
+  const personalSync = syncPersonalSubrepo();
   try {
     const candidates = [];
     if (process.env.APPDATA) {
@@ -574,9 +593,9 @@ function qmdAutoUpdate() {
         timeout: 30000,
       });
     }
-    return 'ok';
+    return `ok (personal: ${personalSync})`;
   } catch {
-    return 'skipped (qmd non trovato o indice non ancora inizializzato con setup)';
+    return `skipped (personal: ${personalSync})`;
   }
 }
 

@@ -196,29 +196,87 @@ function runQmd(args, opts = {}) {
   });
 }
 
-// ------------------------------------------------------------------ 2b. Inizializzazione Angolino Personale (personal/)
+// ------------------------------------------------------------------ 2b. Inizializzazione & Sync Sub-Repo Privato (personal/)
+log('2b/4', 'Configurazione Sub-Repo Git Privato (personal/ -> /srv/git/personal/<utente>.git)...');
 const personalDir = path.join(VAULT_PATH, 'personal');
+const personalGitDir = path.join(personalDir, '.git');
+const personalRemote = userArg ? `git@152.228.134.98:/srv/git/personal/${userArg}.git` : null;
+
+if (personalRemote && !fs.existsSync(personalGitDir)) {
+  if (!fs.existsSync(personalDir) || fs.readdirSync(personalDir).length === 0) {
+    console.log(`  → Tentativo clone di ${personalRemote} in personal/...`);
+    const cl = spawnSync('git', ['clone', personalRemote, personalDir], { cwd: VAULT_PATH, encoding: 'utf8' });
+    if (cl.status === 0) {
+      ok(`Clonato sub-repo personale da ${personalRemote}`);
+    }
+  }
+  if (!fs.existsSync(personalGitDir)) {
+    fs.mkdirSync(personalDir, { recursive: true });
+    spawnSync('git', ['init', '-b', 'main'], { cwd: personalDir, stdio: 'ignore' });
+    spawnSync('git', ['remote', 'add', 'origin', personalRemote], { cwd: personalDir, stdio: 'ignore' });
+    const f = spawnSync('git', ['fetch', 'origin'], { cwd: personalDir, encoding: 'utf8' });
+    if (f.status === 0 && f.stderr && f.stderr.includes('main')) {
+      spawnSync('git', ['reset', '--mixed', 'origin/main'], { cwd: personalDir, stdio: 'ignore' });
+      spawnSync('git', ['branch', '--set-upstream-to=origin/main', 'main'], { cwd: personalDir, stdio: 'ignore' });
+    }
+    ok(`Inizializzato sub-repo Git personale collegato a ${personalRemote}`);
+  }
+} else if (fs.existsSync(personalGitDir)) {
+  spawnSync('git', ['pull', '--ff-only'], { cwd: personalDir, stdio: 'ignore' });
+  ok('Sub-repo personale (personal/.git) sincronizzato con la VPS.');
+}
+
 for (const sub of ['notes', 'connectors', 'data']) {
   const p = path.join(personalDir, sub);
   if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+  const gk = path.join(p, '.gitkeep');
+  if (!fs.existsSync(gk)) fs.writeFileSync(gk, '', 'utf8');
 }
+
+const personalGitignore = path.join(personalDir, '.gitignore');
+if (!fs.existsSync(personalGitignore)) {
+  fs.writeFileSync(
+    personalGitignore,
+    `# Escludi database SQLite e segreti dal sub-repo personale\n*.db\n*.db-journal\n*.db-wal\n*.sqlite\n.env\n.env.*\n__pycache__/\n`,
+    'utf8'
+  );
+}
+
+if (userArg && authors[userArg] && fs.existsSync(personalGitDir)) {
+  const a = authors[userArg];
+  spawnSync('git', ['config', '--local', 'user.name', a.name], { cwd: personalDir, stdio: 'ignore' });
+  spawnSync('git', ['config', '--local', 'user.email', a.email], { cwd: personalDir, stdio: 'ignore' });
+}
+
 const personalIndex = path.join(personalDir, 'index.md');
 if (!fs.existsSync(personalIndex)) {
   fs.writeFileSync(
     personalIndex,
-    `---\ntitle: "Angolino Personale (${userArg || 'utente'})"\nuser: "${userArg || 'utente'}"\ntype: personal-dashboard\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 🔒 Spazio Riservato Personale (${userArg || 'utente'})\n\n> Questo file vive **solo sul tuo PC** (ignorato da Git) ma è indicizzato dal tuo QMD locale (\`asernet-personal\`).\n\n## Priorità Personali\n- \n\n## Note Rapide\n- \n`,
+    `---\ntitle: "Angolino Personale (${userArg || 'utente'})"\nuser: "${userArg || 'utente'}"\ntype: personal-dashboard\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 🔒 Spazio Riservato Personale (${userArg || 'utente'})\n\n> Questo file vive nel tuo sub-repo Git privato (\`/srv/git/personal/${userArg || 'utente'}.git\`, inaccessibile agli altri colleghi) ed è indicizzato dal tuo QMD locale (\`asernet-personal\`).\n\n## Priorità Personali\n- \n\n## Note Rapide\n- \n`,
     'utf8'
   );
-  ok('Creato personal/index.md (solo locale, escluso da Git)');
+  ok('Creato personal/index.md');
 }
 const personalClickup = path.join(personalDir, 'tasks-clickup.md');
 if (!fs.existsSync(personalClickup)) {
   fs.writeFileSync(
     personalClickup,
-    `---\ntitle: "I Miei Task ClickUp"\nuser: "${userArg || 'utente'}"\ntype: personal-tasks\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 📋 Task Personali ClickUp (Solo Locale)\n\n> File autogenerato dal connettore ClickUp personale (\`personal/data/refresh_personal.py\`). Visibile solo a te.\n\n| Stato | Scadenza | Task | Cliente / Progetto | Priorità |\n|---|---|---|---|---|\n| *(In attesa di sincronizzazione ClickUp personale)* | — | — | — | — |\n`,
+    `---\ntitle: "I Miei Task ClickUp"\nuser: "${userArg || 'utente'}"\ntype: personal-tasks\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 📋 Task Personali ClickUp (Solo Tuoi)\n\n> File autogenerato dal connettore ClickUp personale (\`personal/data/refresh_personal.py\`). Sincronizzato tra i tuoi dispositivi tramite \`/srv/git/personal/${userArg || 'utente'}.git\`.\n\n| Stato | Scadenza | Task | Cliente / Progetto | Priorità |\n|---|---|---|---|---|\n| *(In attesa di sincronizzazione ClickUp personale)* | — | — | — | — |\n`,
     'utf8'
   );
-  ok('Creato personal/tasks-clickup.md (solo locale, escluso da Git)');
+  ok('Creato personal/tasks-clickup.md');
+}
+
+if (fs.existsSync(personalGitDir) && personalRemote) {
+  spawnSync('git', ['add', '-A'], { cwd: personalDir, stdio: 'ignore' });
+  const st = spawnSync('git', ['status', '--porcelain'], { cwd: personalDir, encoding: 'utf8' });
+  if (st.stdout && st.stdout.trim().length > 0) {
+    spawnSync('git', ['commit', '-m', `${new Date().toISOString().slice(0, 10)} | ${userArg || 'user'} | personal | Init/update personal workspace`], { cwd: personalDir, stdio: 'ignore' });
+  }
+  const ps = spawnSync('git', ['push', '-u', 'origin', 'main'], { cwd: personalDir, encoding: 'utf8' });
+  if (ps.status === 0) {
+    ok(`Sub-repo personale pushato su ${personalRemote}`);
+  }
 }
 
 // ------------------------------------------------------------------ 3. QMD collections & index

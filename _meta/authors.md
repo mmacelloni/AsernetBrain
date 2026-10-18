@@ -12,14 +12,15 @@ L'`id` è in kebab-case ed è **stabile**: compare in:
 - **Nome Server:** `N8N Asernet` (`152.228.134.98`)
 - **Sicurezza SSH:** `PasswordAuthentication no` (accesso con password disabilitato; solo chiavi pubbliche autorizzate).
 - **Utente Admin VPS (solo Marco):** `ubuntu` (`ssh asernet-admin`) con chiave admin separata.
-- **Utente Git per i Colleghi (senza shell):** `git` (confinato in `/usr/bin/git-shell`, zero accesso al terminale o al sistema).
-- **Percorso Repository Bare:** `/srv/git/asernetbrain.git` (`core.sharedRepository 0640`)
-- **URL Remote Git:** `git@152.228.134.98:/srv/git/asernetbrain.git` (oppure `asernet-git:/srv/git/asernetbrain.git`)
+- **Utente Git per i Colleghi (senza shell):** `git` (confinato in `/usr/local/bin/asernet-git-shell`, zero accesso al terminale o al sistema).
+- **Percorso Repository Aziendale Condiviso:** `git@152.228.134.98:/srv/git/asernetbrain.git`
+- **Percorso Sub-Repo Personale Isolato (`personal/`):** `git@152.228.134.98:/srv/git/personal/<id>.git` (ogni utente può leggere/scrivere **solo** il proprio `/srv/git/personal/<id>.git`; il tentativo di accedere a quello di un collega viene bloccato a livello SSH da `asernet-git-shell`).
 
-### Aggiunta Chiave SSH per un Nuovo Utente / Dispositivo
-Ogni collega (o nuova macchina, es. Mac) genera la propria chiave `ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_asernetbrain` e invia la sola chiave pubblica (`.pub`) all'admin, che la aggiunge in append a `/home/git/.ssh/authorized_keys` con i flag di restrizione:
+### Aggiunta Chiave SSH per un Nuovo Utente / Dispositivo (es. Mac o PC Collega)
+Ogni collega (o un nuovo dispositivo come il Mac) genera la propria chiave `ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519_asernetbrain` e invia la sola chiave pubblica (`.pub`) all'admin, che la associa all'`<id>` dell'utente (`marco`, `raffaele`, `domenico`, `pasquale`, `anna`) in `/home/git/.ssh/authorized_keys`:
 ```bash
-{ printf 'no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty '; cat chiave_utente.pub; } \
+# Sostituisci <id> con: marco, raffaele, domenico, pasquale o anna
+{ printf 'command="/usr/local/bin/asernet-git-guard <id>",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty '; cat chiave_utente.pub; } \
   | ssh asernet-admin 'sudo -u git tee -a /home/git/.ssh/authorized_keys'
 ```
 
