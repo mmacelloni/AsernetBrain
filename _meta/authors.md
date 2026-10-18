@@ -7,13 +7,23 @@ L'`id` è in kebab-case ed è **stabile**: compare in:
 - il percorso delle Actions personali (`actions/users/<id>/`);
 - i log operativi.
 
-## Identità registrate
+## Server Git Remoto Condiviso (VPS Aziendale)
 
-| id | tipo | nome | email git | Cartella Actions Personali |
+- **Nome Server:** `N8N Asernet`
+- **IP / Host:** `152.228.134.98` (alias SSH consigliato: `asernet-vps`)
+- **Utente SSH:** `ubuntu`
+- **Percorso Repository Bare:** `/srv/git/asernetbrain.git`
+- **URL Remote Git:** `ubuntu@152.228.134.98:/srv/git/asernetbrain.git` (oppure `asernet-vps:/srv/git/asernetbrain.git`)
+
+## Convenzione Email & Identità Registrate
+
+Tutte le identità umane aziendali utilizzano l'email nominativa con dominio **`@asernet.it`** nel formato `<iniziale>.<cognome>@asernet.it`:
+
+| id | tipo | nome | email git (`@asernet.it`) | Cartella Actions Personali |
 |---|---|---|---|---|
-| `sara` | human | Sara Romano | sara.romano.15@gmail.com | `actions/users/sara/` |
-| `anna` | human | Anna Angeloro | annaangeloro11@gmail.com | `actions/users/anna/` |
-| `marco` | human | Marco Macelloni | info@bitsite.it | `actions/users/marco/` |
+| `marco` | human | Marco Macelloni | m.macelloni@asernet.it | `actions/users/marco/` |
+| `sara` | human | Sara Romano | s.romano@asernet.it | `actions/users/sara/` |
+| `anna` | human | Anna Angeloro | a.angeloro@asernet.it | `actions/users/anna/` |
 | `claude-ingest` | agent | Claude — operazioni di `/ingest` sul vault | — | — |
 
 ## Regola di disambiguazione

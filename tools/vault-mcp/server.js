@@ -554,13 +554,26 @@ function vaultSync() {
  */
 function qmdAutoUpdate() {
   try {
-    const cmd = process.platform === 'win32' ? 'qmd.cmd' : 'qmd';
-    execFileSync(cmd, ['--index', 'asernetbrain', 'update'], {
-      cwd: VAULT_PATH,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-      timeout: 30000,
-    });
+    const candidates = [];
+    if (process.env.APPDATA) {
+      candidates.push(path.join(process.env.APPDATA, 'npm', 'node_modules', '@tobilu', 'qmd', 'dist', 'cli', 'qmd.js'));
+    }
+    const qmdJs = candidates.find((c) => fs.existsSync(c));
+    if (qmdJs) {
+      execFileSync(process.execPath, [qmdJs, '--index', 'asernetbrain', 'update'], {
+        cwd: VAULT_PATH,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+        timeout: 30000,
+      });
+    } else {
+      execFileSync('qmd', ['--index', 'asernetbrain', 'update'], {
+        cwd: VAULT_PATH,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+        timeout: 30000,
+      });
+    }
     return 'ok';
   } catch {
     return 'skipped (qmd non trovato o indice non ancora inizializzato con setup)';

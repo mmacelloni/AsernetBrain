@@ -27,6 +27,35 @@ const VAULT_PATH = path.resolve(__dirname, '..');
 const IS_WIN = process.platform === 'win32';
 const HOME = os.homedir();
 
+// Parsing argomento --user <id> (es. node tools/setup.js --user marco)
+let userArg = null;
+for (let i = 2; i < process.argv.length; i++) {
+  if (process.argv[i] === '--user' && process.argv[i + 1]) {
+    userArg = process.argv[i + 1].trim().toLowerCase();
+    i++;
+  } else if (process.argv[i].startsWith('--user=')) {
+    userArg = process.argv[i].split('=')[1].trim().toLowerCase();
+  }
+}
+
+function parseAuthors() {
+  const authorsFile = path.join(VAULT_PATH, '_meta', 'authors.md');
+  const map = {};
+  if (!fs.existsSync(authorsFile)) return map;
+  const lines = fs.readFileSync(authorsFile, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const m = line.match(/^\|\s*`([^`]+)`\s*\|\s*human\s*\|\s*([^|]+?)\s*\|\s*([^|\s]+@[^|\s]+)\s*\|/i);
+    if (m) {
+      map[m[1].trim().toLowerCase()] = {
+        id: m[1].trim().toLowerCase(),
+        name: m[2].trim(),
+        email: m[3].trim(),
+      };
+    }
+  }
+  return map;
+}
+
 function log(step, msg) {
   console.log(`\x1b[36m[${step}]\x1b[0m ${msg}`);
 }
@@ -49,20 +78,29 @@ function whichBin(cmd) {
       const cmdFile = out.find((p) => p.toLowerCase().endsWith('.cmd') || p.toLowerCase().endsWith('.exe'));
       return cmdFile || out[0];
     }
-    return out[0];
+    if (out[0]) return out[0];
   } catch {
-    return null;
+    // fallback per macOS Finder (dove /opt/homebrew/bin non è nel PATH base)
   }
+  if (!IS_WIN) {
+    for (const dir of ['/opt/homebrew/bin', '/usr/local/bin', path.join(HOME, '.local', 'bin')]) {
+      const candidate = path.join(dir, cmd);
+      if (fs.existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
 }
 
 console.log('\n====================================================');
 console.log('   🚀 Setup Automatico AsernetBrain (Git MCP + QMD)');
 console.log('====================================================');
 console.log(`  Sistema : ${process.platform} (${os.hostname()})`);
-console.log(`  Vault   : ${VAULT_PATH}\n`);
+console.log(`  Vault   : ${VAULT_PATH}`);
+if (userArg) console.log(`  Utente  : ${userArg}`);
+console.log('');
 
 // ------------------------------------------------------------------ 1. Git local config
-log('1/4', 'Configurazione Git locale (merge driver per index.md)...');
+log('1/4', 'Configurazione Git locale (merge driver e identità _meta/authors.md)...');
 try {
   execSync('git config --local merge.ours.driver true', { cwd: VAULT_PATH, stdio: 'ignore' });
   ok('git config --local merge.ours.driver = true');
@@ -70,31 +108,92 @@ try {
   warn(`Impossibile impostare merge.ours.driver: ${e.message}`);
 }
 
+const authors = parseAuthors();
+if (userArg && authors[userArg]) {
+  const a = authors[userArg];
+  try {
+    execSync(`git config --local user.name "${a.name}"`, { cwd: VAULT_PATH, stdio: 'ignore' });
+    execSync(`git config --local user.email "${a.email}"`, { cwd: VAULT_PATH, stdio: 'ignore' });
+    ok(`Identità Git locale impostata da _meta/authors.md: ${a.id} -> ${a.name} <${a.email}>`);
+  } catch (e) {
+    warn(`Impossibile configurare user.name/email locale: ${e.message}`);
+  }
+} else if (userArg && !authors[userArg]) {
+  warn(`Utente "${userArg}" non trovato in _meta/authors.md (utenti registrati: ${Object.keys(authors).join(', ')})`);
+}
+
 try {
   const email = execSync('git config user.email', { cwd: VAULT_PATH, encoding: 'utf8' }).trim();
   if (email) {
-    ok(`Identità Git rilevata: ${email}`);
+    const matched = Object.values(authors).find((a) => a.email.toLowerCase() === email.toLowerCase());
+    if (matched) {
+      if (!userArg) userArg = matched.id;
+      ok(`Identità Git attiva verificata in _meta/authors.md: ${matched.id} (${email})`);
+    } else {
+      warn(`git config user.email (${email}) non corrisponde a _meta/authors.md. Passa --user <id> (es. node tools/setup.js --user marco).`);
+    }
   } else {
-    warn('git config user.email è vuoto! Impostalo con: git config --global user.email "tua@email.it"');
+    warn('git config user.email è vuoto! Esegui: node tools/setup.js --user <id>');
   }
 } catch {
-  warn('git config user.email non configurato! Ricordati di impostarlo prima di usare /pubblica.');
+  warn('git config user.email non configurato! Esegui: node tools/setup.js --user <id>');
 }
+
+function resolveQmdJs(qmdBinPath) {
+  const candidates = [];
+  if (qmdBinPath) {
+    const binDir = path.dirname(qmdBinPath);
+    candidates.push(path.join(binDir, 'node_modules', '@tobilu', 'qmd', 'dist', 'cli', 'qmd.js'));
+    candidates.push(path.join(binDir, '..', 'lib', 'node_modules', '@tobilu', 'qmd', 'dist', 'cli', 'qmd.js'));
+  }
+  try {
+    const npmRoot = execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (npmRoot) {
+      candidates.push(path.join(npmRoot, '@tobilu', 'qmd', 'dist', 'cli', 'qmd.js'));
+    }
+  } catch {
+    // ignore
+  }
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return null;
+}
+
+const nodeBin = process.execPath || whichBin('node') || 'node';
 
 // ------------------------------------------------------------------ 2. QMD install check
 log('2/4', 'Verifica installazione motore di ricerca locale QMD (@tobilu/qmd)...');
 let qmdBin = whichBin('qmd');
-if (!qmdBin) {
+let qmdJs = resolveQmdJs(qmdBin);
+if (!qmdBin && !qmdJs) {
   console.log('  → QMD non trovato sulla macchina. Installazione automatica con npm install -g @tobilu/qmd...');
   try {
     execSync('npm install -g @tobilu/qmd', { stdio: 'inherit' });
     qmdBin = whichBin('qmd');
-    ok(`QMD installato con successo: ${qmdBin || 'qmd'}`);
+    qmdJs = resolveQmdJs(qmdBin);
+    ok(`QMD installato con successo: ${qmdJs || qmdBin || 'qmd'}`);
   } catch (e) {
     warn(`Installazione automatica QMD fallita (${e.message}). Riprova manualmente con: npm install -g @tobilu/qmd`);
   }
 } else {
-  ok(`QMD già presente: ${qmdBin}`);
+  ok(`QMD già presente: ${qmdJs || qmdBin}`);
+}
+
+function runQmd(args, opts = {}) {
+  if (qmdJs) {
+    return spawnSync(nodeBin, [qmdJs, ...args], {
+      cwd: VAULT_PATH,
+      encoding: 'utf8',
+      ...opts,
+    });
+  }
+  return spawnSync(qmdBin || 'qmd', args, {
+    cwd: VAULT_PATH,
+    encoding: 'utf8',
+    shell: IS_WIN,
+    ...opts,
+  });
 }
 
 // ------------------------------------------------------------------ 2b. Inizializzazione Angolino Personale (personal/)
@@ -107,7 +206,7 @@ const personalIndex = path.join(personalDir, 'index.md');
 if (!fs.existsSync(personalIndex)) {
   fs.writeFileSync(
     personalIndex,
-    `---\ntitle: "Angolino Personale (${userArg || 'utente'})"\ntype: personal-dashboard\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 🔒 Spazio Riservato Personale\n\n> Questo file vive **solo sul tuo PC** (ignorato da Git) ma è indicizzato dal tuo QMD locale (\`asernet-personal\`).\n\n## Priorità Personali\n- \n\n## Note Rapide\n- \n`,
+    `---\ntitle: "Angolino Personale (${userArg || 'utente'})"\nuser: "${userArg || 'utente'}"\ntype: personal-dashboard\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 🔒 Spazio Riservato Personale (${userArg || 'utente'})\n\n> Questo file vive **solo sul tuo PC** (ignorato da Git) ma è indicizzato dal tuo QMD locale (\`asernet-personal\`).\n\n## Priorità Personali\n- \n\n## Note Rapide\n- \n`,
     'utf8'
   );
   ok('Creato personal/index.md (solo locale, escluso da Git)');
@@ -116,7 +215,7 @@ const personalClickup = path.join(personalDir, 'tasks-clickup.md');
 if (!fs.existsSync(personalClickup)) {
   fs.writeFileSync(
     personalClickup,
-    `---\ntitle: "I Miei Task ClickUp"\ntype: personal-tasks\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 📋 Task Personali ClickUp (Solo Locale)\n\n> File autogenerato dal connettore ClickUp personale (\`personal/data/refresh_personal.py\`). Visibile solo a te.\n\n| Stato | Scadenza | Task | Cliente / Progetto | Priorità |\n|---|---|---|---|---|\n| *(In attesa di sincronizzazione ClickUp personale)* | — | — | — | — |\n`,
+    `---\ntitle: "I Miei Task ClickUp"\nuser: "${userArg || 'utente'}"\ntype: personal-tasks\nupdated: ${new Date().toISOString().slice(0, 10)}\n---\n\n# 📋 Task Personali ClickUp (Solo Locale)\n\n> File autogenerato dal connettore ClickUp personale (\`personal/data/refresh_personal.py\`). Visibile solo a te.\n\n| Stato | Scadenza | Task | Cliente / Progetto | Priorità |\n|---|---|---|---|---|\n| *(In attesa di sincronizzazione ClickUp personale)* | — | — | — | — |\n`,
     'utf8'
   );
   ok('Creato personal/tasks-clickup.md (solo locale, escluso da Git)');
@@ -125,34 +224,46 @@ if (!fs.existsSync(personalClickup)) {
 // ------------------------------------------------------------------ 3. QMD collections & index
 log('3/4', 'Configurazione indice locale QMD (--index asernetbrain) e collection...');
 const collections = [
-  { name: 'asernet-wiki', dir: path.join(VAULT_PATH, 'wiki') },
-  { name: 'asernet-clients', dir: path.join(VAULT_PATH, 'clients') },
-  { name: 'asernet-topics', dir: path.join(VAULT_PATH, 'topics') },
-  { name: 'asernet-personal', dir: path.join(VAULT_PATH, 'personal') },
+  {
+    name: 'asernet-wiki',
+    dir: path.join(VAULT_PATH, 'wiki'),
+    context: 'Knowledge base aziendale Asernet governata (OKF): SOP, procedure interne, prodotti, partner, concetti e fonti validate.',
+  },
+  {
+    name: 'asernet-clients',
+    dir: path.join(VAULT_PATH, 'clients'),
+    context: 'Schede operative clienti Asernet (AIOS + DataPyx): contesto stabile (index.md), stato volatile (state.md), diagnosi (purpose.md), metriche (key-metrics.md), contatti, progetti e log riunioni.',
+  },
+  {
+    name: 'asernet-topics',
+    dir: path.join(VAULT_PATH, 'topics'),
+    context: 'Domini tecnici verticali Asernet: networking, sviluppo software, AI, marketing e best practice tecniche.',
+  },
+  {
+    name: 'asernet-personal',
+    dir: path.join(VAULT_PATH, 'personal'),
+    context: 'Spazio privato locale del singolo utente: task personali sincronizzati da ClickUp (tasks-clickup.md), cruscotto personale (index.md) e appunti riservati.',
+  },
 ];
 
-if (qmdBin) {
+if (qmdJs || qmdBin) {
   for (const c of collections) {
     if (fs.existsSync(c.dir)) {
-      const res = spawnSync('qmd', ['--index', 'asernetbrain', 'collection', 'add', c.dir, '--name', c.name], {
-        cwd: VAULT_PATH,
-        encoding: 'utf8',
-        shell: IS_WIN,
-      });
+      const res = runQmd(['--index', 'asernetbrain', 'collection', 'add', c.dir, '--name', c.name]);
       if (res.status === 0 || (res.stderr && res.stderr.includes('already'))) {
         ok(`Collection registrata: ${c.name} -> ${c.dir}`);
       } else {
         ok(`Collection verificata: ${c.name}`);
       }
+      if (c.context) {
+        runQmd(['--index', 'asernetbrain', 'context', 'add', `qmd://${c.name}/`, c.context]);
+      }
     }
   }
 
-  console.log('  → Aggiornamento indice QMD (qmd --index asernetbrain update)...');
-  spawnSync('qmd', ['--index', 'asernetbrain', 'update'], {
-    cwd: VAULT_PATH,
-    stdio: 'inherit',
-    shell: IS_WIN,
-  });
+  console.log('  → Aggiornamento indice QMD (qmd --index asernetbrain update & embed)...');
+  runQmd(['--index', 'asernetbrain', 'update'], { stdio: 'inherit' });
+  runQmd(['--index', 'asernetbrain', 'embed'], { stdio: 'inherit' });
 } else {
   warn('Salto configurazione collection QMD (binario qmd non disponibile).');
 }
@@ -177,7 +288,6 @@ try {
     cfg.mcpServers = {};
   }
 
-  const nodeBin = process.execPath || whichBin('node') || 'node';
   const serverJs = path.join(VAULT_PATH, 'tools', 'vault-mcp', 'server.js');
 
   cfg.mcpServers['vault-asernet'] = {
@@ -188,10 +298,25 @@ try {
     },
   };
 
-  cfg.mcpServers['qmd-asernet'] = {
-    command: qmdBin || 'qmd',
-    args: ['mcp', '--index', 'asernetbrain'],
-  };
+  const qmdDbPath = path.join(HOME, '.cache', 'qmd', 'asernetbrain.sqlite');
+
+  cfg.mcpServers['qmd-asernet'] = qmdJs
+    ? {
+        command: nodeBin,
+        args: [qmdJs, '--index', 'asernetbrain', 'mcp'],
+        env: {
+          HOME: HOME,
+          INDEX_PATH: qmdDbPath,
+        },
+      }
+    : {
+        command: qmdBin || 'qmd',
+        args: ['--index', 'asernetbrain', 'mcp'],
+        env: {
+          HOME: HOME,
+          INDEX_PATH: qmdDbPath,
+        },
+      };
 
   fs.writeFileSync(claudeConfigPath, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
   ok(`Claude Desktop configurato: ${claudeConfigPath}`);
