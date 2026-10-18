@@ -137,6 +137,19 @@ In qualsiasi momento, per verificare quali computer e colleghi sono autorizzati 
 ssh ubuntu@152.228.134.98 "sudo asernet-add-key list"
 ```
 
+#### 🖥️ Come collegare la chiave dentro **Tabby Terminal** (profilo `N8N Asernet`)
+In **Tabby Terminal** per entrare sulla VPS (`152.228.134.98`) senza password:
+1. Apri **Tabby** → **Impostazioni (⚙️ Settings)** → **Profiles & connections**.
+2. Cerca il profilo **`N8N Asernet`** (oppure clicca **New profile** → **SSH connection**) e clicca sulla matita (**Edit**):
+   - **Host**: `152.228.134.98`
+   - **Port**: `22`
+   - **Username**: `ubuntu`
+   - **Authentication method**: seleziona **`Key`** (o **`Public key`**) invece di `Password`.
+   - **Private keys**: clicca **`+ Add` (`Choose a file`)** e seleziona il file della chiave privata (senza `.pub`):
+     - Su **Windows**: `C:\Users\<tuo_utente>\.ssh\id_ed25519_asernetbrain` *(oppure `id_ed25519_asernet_admin`)*
+     - Su **Mac**: `/Users/<tuo_utente>/.ssh/id_ed25519_asernetbrain` *(nella finestra del Finder premi `Cmd + Shift + .` per vedere la cartella nascosta `.ssh`)*
+3. Salva il profilo: ora cliccando su **`N8N Asernet`** in Tabby entri direttamente sulla VPS.
+
 ---
 
 ### 3. Clonazione e Setup per Sistema Operativo
