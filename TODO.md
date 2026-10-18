@@ -14,13 +14,16 @@
 - [x] **2. Configurazione Repository Bare Git sulla VPS aziendale (`N8N Asernet`)**:
   - **Host / IP:** `152.228.134.98` (`PasswordAuthentication no`, accesso SSH solo con chiave)
   - **Admin VPS:** `ubuntu` (`asernet-admin`, chiave separata solo admin)
-  - **Utente Git Colleghi:** `git` (`asernet-git`, confinato in `/usr/bin/git-shell` con 1 chiave nominativa per utente/macchina in `/home/git/.ssh/authorized_keys`)
-  - **Percorso Bare Repo:** `git@152.228.134.98:/srv/git/asernetbrain.git`
+  - **Utente Git Colleghi:** `git` (`asernet-git`, confinato in `/usr/local/bin/asernet-git-shell` + `asernet-git-guard <user>` con chiavi nominative in `/home/git/.ssh/authorized_keys`)
+  - **Percorso Bare Repo Condiviso:** `git@152.228.134.98:/srv/git/asernetbrain.git`
+  - **Sub-Repo Privati Isolati per Utente (`personal/`):** `git@152.228.134.98:/srv/git/personal/{marco,raffaele,domenico,pasquale,anna}.git` con merge e sync automatico ad ogni pull/push (`vault-mcp` + `.githooks/`).
   - **Convenzione Email Utenti (`_meta/authors.md`):** email aziendali nominative `@asernet.it` (`m.macelloni@asernet.it`, `r.tortora@asernet.it`, `d.palma@asernet.it`, `p.cipriani@asernet.it`, `a.angeloro@asernet.it`).
+- [x] **3. Repository Privato di Backup su GitHub (`mmacelloni/AsernetBrain`)**: creato repo privato `https://github.com/mmacelloni/AsernetBrain` con `README.md` completo (istruzioni di installazione macOS/Windows/Linux + Guida all'uso quotidiano).
+- [x] **4. Clone & Setup su Mac (`MacBook-Air.local`)**: autorizzata chiave SSH Mac per `marco`, clonato il repository principale e il sub-repo privato `personal/`, configurati QMD e MCP.
 
 ---
 
 ## 🔜 Prossimi Passi
-- [ ] **3. Test Clone & Setup su Mac (`MacBook-Air.local`)**: clonare `git@152.228.134.98:/srv/git/asernetbrain.git` e lanciare `./setup-mac.command --user marco`.
-- [ ] **4. Onboarding Primo Cliente Pilota in `clients/<slug>/`**: testare il flusso completo (`aios-context`, `datapyx`, query BigQuery ad hoc in `connectors/bigquery_queries.py`).
-- [ ] **5. Connettore ClickUp Personale (`personal/connectors/clickup_personal.py`)**: creare lo script standard che popola `personal/tasks-clickup.md` per ciascun utente.
+- [ ] **5. Onboarding Primo Cliente Pilota in `clients/<slug>/`**: testare il flusso completo (`aios-context`, `datapyx`, query BigQuery ad hoc in `connectors/bigquery_queries.py`).
+- [ ] **6. Connettore ClickUp Personale (`personal/connectors/clickup_personal.py`)**: creare lo script standard che popola `personal/tasks-clickup.md` per ciascun utente.
+- [ ] **7. Abilitazione Chiavi SSH Colleghi (`raffaele`, `domenico`, `pasquale`, `anna`)**: aggiungere le rispettive chiavi `.pub` in `/home/git/.ssh/authorized_keys` man mano che effettuano il primo setup.
