@@ -9,13 +9,13 @@
   "skills": "./.claude/skills/",
   "commands": "./.claude/commands/",
   "mcpServers": {
-    "vault": {
+    "vault-asernet": {
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/tools/vault-mcp/server.js"]
     },
-    "qmd": {
-      "command": "qmd",
-      "args": ["--index", "asernetbrain", "mcp"]
+    "qmd-asernet": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/tools/qmd-mcp.js"]
     }
   }
 }

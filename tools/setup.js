@@ -330,9 +330,12 @@ if (qmdJs || qmdBin) {
 // ------------------------------------------------------------------ 4. Claude Desktop MCP config
 log('4/4', 'Registrazione automatica Server MCP (vault-asernet + qmd-asernet) in Claude Desktop...');
 
+const IS_MAC = process.platform === 'darwin';
 const claudeConfigPath = IS_WIN
   ? path.join(process.env.APPDATA || path.join(HOME, 'AppData', 'Roaming'), 'Claude', 'claude_desktop_config.json')
-  : path.join(HOME, 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
+  : IS_MAC
+    ? path.join(HOME, 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json')
+    : path.join(HOME, '.config', 'Claude', 'claude_desktop_config.json');
 
 try {
   fs.mkdirSync(path.dirname(claudeConfigPath), { recursive: true });
@@ -348,46 +351,35 @@ try {
   }
 
   const serverJs = path.join(VAULT_PATH, 'tools', 'vault-mcp', 'server.js');
+  const qmdMcpJs = path.join(VAULT_PATH, 'tools', 'qmd-mcp.js');
+  const qmdDbPath = path.join(HOME, '.cache', 'qmd', 'asernetbrain.sqlite');
+  const unixPath = `/opt/homebrew/bin:/usr/local/bin:${process.env.PATH || '/usr/bin:/bin:/usr/sbin:/sbin'}`;
 
   cfg.mcpServers['vault-asernet'] = {
     command: nodeBin,
     args: [serverJs],
-    env: {
-      VAULT_PATH: VAULT_PATH,
-    },
+    env: IS_WIN
+      ? { VAULT_PATH: VAULT_PATH }
+      : { VAULT_PATH: VAULT_PATH, HOME: HOME, PATH: unixPath },
   };
 
-  const qmdDbPath = path.join(HOME, '.cache', 'qmd', 'asernetbrain.sqlite');
-
-  cfg.mcpServers['qmd-asernet'] = qmdJs
-    ? {
-        command: nodeBin,
-        args: [qmdJs, '--index', 'asernetbrain', 'mcp'],
-        env: {
-          HOME: HOME,
-          INDEX_PATH: qmdDbPath,
-        },
-      }
-    : {
-        command: qmdBin || 'qmd',
-        args: ['--index', 'asernetbrain', 'mcp'],
-        env: {
-          HOME: HOME,
-          INDEX_PATH: qmdDbPath,
-        },
-      };
+  cfg.mcpServers['qmd-asernet'] = {
+    command: nodeBin,
+    args: [qmdMcpJs],
+    env: IS_WIN
+      ? { HOME: HOME, INDEX_PATH: qmdDbPath }
+      : { HOME: HOME, INDEX_PATH: qmdDbPath, PATH: unixPath },
+  };
 
   fs.writeFileSync(claudeConfigPath, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
   ok(`Claude Desktop configurato: ${claudeConfigPath}`);
   ok(`  • MCP Git : vault-asernet (${serverJs})`);
-  ok(`  • MCP QMD : qmd-asernet   (qmd mcp --index asernetbrain)`);
+  ok(`  • MCP QMD : qmd-asernet   (${qmdMcpJs})`);
 } catch (e) {
   warn(`Impossibile aggiornare automaticamente claude_desktop_config.json: ${e.message}`);
 }
 
 console.log('\n====================================================');
 console.log('   ✅ Setup AsernetBrain completato!');
-console.log('   Riavvia Claude Desktop (Esci dalla tray icon) per attivare i 2 server MCP.');
-console.log('   Per scaricare i modelli neurali di embedding al primo avvio:');
-console.log('     qmd --index asernetbrain embed');
+console.log('   Riavvia Claude Desktop (Cmd+Q su Mac / Esci dalla tray su Windows) per attivare i 2 server MCP.');
 console.log('====================================================\n');

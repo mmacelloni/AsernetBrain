@@ -5,8 +5,8 @@
       "args": ["tools/vault-mcp/server.js"]
     },
     "qmd-asernet": {
-      "command": "qmd",
-      "args": ["mcp", "--index", "asernetbrain"]
+      "command": "node",
+      "args": ["tools/qmd-mcp.js"]
     }
   }
 }

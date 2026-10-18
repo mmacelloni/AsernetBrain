@@ -166,9 +166,104 @@ Durante l'esecuzione, l'installer configura l'intero ambiente senza interventi m
    - `asernet-personal` (`personal/`, indicizzato solo sul tuo computer)
 4. **Server MCP per Claude Desktop e Claude Code:** registra automaticamente:
    - **`vault-asernet`** (`tools/vault-mcp/server.js`) → sincronizzazione Git sicura (`main` + `personal/`) e aggiornamento automatico di QMD.
-   - **`qmd-asernet`** → ricerca ibrida locale BM25 + vettoriale.
+   - **`qmd-asernet`** (`tools/qmd-mcp.js`) → ricerca ibrida locale BM25 + vettoriale sull'indice isolato `asernetbrain`.
 
-> 🔄 **Al termine del setup**, riavvia **Claude Desktop** (o apri una nuova sessione `claude` da terminale) per caricare i server MCP.
+---
+
+## 🤖 5. Configurazione dell'App Claude Desktop, Plugin e Server MCP
+
+`AsernetBrain` può essere utilizzato sia dall'**App Claude Desktop** (macOS / Windows) sia da **Claude Code CLI / IDE**. Di seguito trovi tutti i passaggi per verificare e completare la configurazione sull'App Desktop.
+
+### 5.1 Come vengono integrati i Server MCP (`vault-asernet` e `qmd-asernet`)
+
+Quando esegui `./setup-mac.command --user <user_id>` (su Mac) o `setup-windows.bat --user <user_id>` (su Windows), lo script aggiorna automaticamente il file di configurazione MCP di **Claude Desktop**:
+
+- **🍎 macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **🪟 Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **🐧 Linux:** `~/.config/Claude/claude_desktop_config.json`
+
+#### Come verificare che i Server MCP siano attivi in Claude Desktop:
+1. Chiudi completamente **Claude Desktop** (**`Cmd + Q`** su Mac oppure tasto destro sull'icona nella barra di sistema → **Quit/Esci** su Windows) e riaprilo.
+2. Apri le **Impostazioni** di Claude Desktop:
+   - **macOS:** barra in alto **Claude → Settings...** (oppure premi **`Cmd + ,`**)
+   - **Windows:** menu in alto a sinistra **File → Settings...** (oppure premi **`Ctrl + ,`**)
+3. Clicca sulla scheda **Sviluppatore (Developer)** nella colonna di sinistra:
+   - Vedrai elencati i due server **`vault-asernet`** e **`qmd-asernet`** con il badge **`running`** (attivo).
+4. Nella finestra di chat di Claude Desktop, cliccando sull'icona degli **strumenti / connettori** (in basso accanto al box di testo), vedrai disponibili:
+   - **Tools di `vault-asernet`**: `vault_status`, `vault_sync`, `vault_publish`, `vault_propose`, `vault_RawHash`, `vault_git_check`
+   - **Tools di `qmd-asernet`**: `query`, `get`, `multi_get`, `status`
+
+#### Configurazione Manuale di `claude_desktop_config.json` (se necessaria)
+Se hai installato Claude Desktop *dopo* aver lanciato il setup (o se hai spostato la cartella `AsernetBrain` in un altro percorso), puoi semplicemente **rilanciare `./setup-mac.command --user <user_id>`** nella nuova cartella, oppure aprire **Claude → Settings → Developer → Edit Config** e verificare che `claude_desktop_config.json` contenga:
+
+**Esempio macOS (`~/Library/Application Support/Claude/claude_desktop_config.json`):**
+```json
+{
+  "mcpServers": {
+    "vault-asernet": {
+      "command": "node",
+      "args": ["/PERCORSO/ASSOLUTO/AsernetBrain/tools/vault-mcp/server.js"],
+      "env": {
+        "VAULT_PATH": "/PERCORSO/ASSOLUTO/AsernetBrain",
+        "HOME": "/Users/<tuo_utente_mac>",
+        "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
+    },
+    "qmd-asernet": {
+      "command": "node",
+      "args": ["/PERCORSO/ASSOLUTO/AsernetBrain/tools/qmd-mcp.js"],
+      "env": {
+        "HOME": "/Users/<tuo_utente_mac>",
+        "INDEX_PATH": "/Users/<tuo_utente_mac>/.cache/qmd/asernetbrain.sqlite",
+        "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
+    }
+  }
+}
+```
+
+**Esempio Windows (`%APPDATA%\Claude\claude_desktop_config.json`):**
+```json
+{
+  "mcpServers": {
+    "vault-asernet": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": ["C:\\PERCORSO\\ASSOLUTO\\AsernetBrain\\tools\\vault-mcp\\server.js"],
+      "env": {
+        "VAULT_PATH": "C:\\PERCORSO\\ASSOLUTO\\AsernetBrain"
+      }
+    },
+    "qmd-asernet": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": ["C:\\PERCORSO\\ASSOLUTO\\AsernetBrain\\tools\\qmd-mcp.js"],
+      "env": {
+        "HOME": "C:\\Users\\<tuo_utente_win>",
+        "INDEX_PATH": "C:\\Users\\<tuo_utente_win>\\.cache\\qmd\\asernetbrain.sqlite"
+      }
+    }
+  }
+}
+```
+
+---
+
+### 5.2 Attivare Cartella di Lavoro, Skill e Comandi (`/prime`, `/ingest`, `/pubblica`) in Claude Desktop
+
+Oltre ai 2 server MCP, per permettere a **Claude Desktop** di leggere/modificare i file della cartella `AsernetBrain` e usare tutti i comandi slash (`/prime`, `/ingest`, `/chiedi`, `/client-brief`, `/debrief`, `aios`, `datapyx`, `/challenge`, `/pubblica`):
+
+1. **Seleziona la Modalità "Cowork" (o "Code") in Claude Desktop:**
+   - Nella barra laterale sinistra di Claude Desktop, passa dalla scheda *Chat* alla scheda **Cowork** (o **Code**).
+   - Clicca sul selettore della cartella di lavoro (in basso o al centro) e seleziona la tua cartella locale **`AsernetBrain`**.
+   - In questo modo Claude legge automaticamente la costituzione `CLAUDE.md` del progetto e ha accesso diretto ai file locali (`wiki/`, `clients/`, `topics/`, `personal/`, `raw/`).
+
+2. **Installa il Plugin locale `asernet-brain` (Una Tantum in Claude Desktop):**
+   - Il repository contiene già il manifesto `.claude-plugin/plugin.json` con tutte le **Skill** (`.claude/skills/`) e i **Comandi** (`.claude/commands/`).
+   - In Claude Desktop vai su **Personalizza (Customize) → Plugin (Plugins)** nella barra laterale.
+   - Clicca su **Aggiungi plugin da cartella locale / Install local plugin** e seleziona la cartella **`AsernetBrain`** (dove si trova `.claude-plugin/plugin.json`).
+   - Una volta attivo, digitando **`/`** nella chat di Claude Desktop compariranno tutti i comandi aziendali (`/prime`, `/ingest`, `/chiedi`, `/client-brief`, `/debrief`, `/challenge`, `/contribuisci`, `/rivedi-proposte`, `/lint`, `/pubblica`).
+
+3. **Se usi Claude Code da Terminale o VS Code / Cursor:**
+   - Ti basta aprire il terminale nella cartella `AsernetBrain` e digitare `claude`: il file `.mcp.json` e la cartella `.claude/` presenti nella root del progetto attivano automaticamente sia i 2 server MCP (`vault-asernet` e `qmd-asernet`) sia tutti i comandi `/`.
 
 ---
 
