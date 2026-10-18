@@ -46,14 +46,16 @@ Scrivi/aggiorna la roadmap nel posto giusto:
 ### 4. Per ogni automazione — chiedi conferma
 Partendo dalla più prioritaria, **chiedi all'utente se costruirla ora** o lasciarla `⬜ da fare` nella roadmap. Non costruire nulla senza conferma esplicita.
 
-### 5. Costruzione di una automazione
+### 5. Costruzione di una automazione + 😈 Devil's Advocate DOE
 Segui `references/build-guide.md`:
 - Prima di costruire, fai le **domande di rito** (formato, vincoli, on-demand vs schedulata, e **chi riceve l'output**).
-- Se il destinatario è fuori dall'azienda, l'automazione si ferma alla bozza e l'invio resta umano (eventuali deroghe vanno registrate in `clients/<slug>/connectors/config.yaml`).
+- **😈 Devil's Advocate dell'Automazione (obbligatorio prima di scrivere lo script):**
+  individua **3 motivi specifici** per cui questa automazione può rompersi o fare danni in produzione (es. API timeout/rate-limit, dati sporchi/nulli, duplicazione invii) e codifica subito la **contromisura pratica** sia nello script Python (`Livello 3`) sia nella sezione *Casi Limite* della Direttiva (`Livello 1`).
+- Se il destinatario è fuori dall'azienda, l'automazione si ferma alla bozza e l'invio resta umano (HITL finché non supera il Gate **9/10 esecuzioni reali corrette**).
 - Segreti solo in `.env`.
 
-### 6. Verifica e chiusura
-Per ogni automazione costruita esegui un **test reale** e mostra l'output. Aggiorna la roadmap e appendi una riga al log (`clients/<slug>/log.md` o `wiki/log.md`). Suggerisci `/pubblica` per versionare.
+### 6. Verifica, Self-Annealing e Chiusura
+Per ogni automazione costruita esegui un **test reale** e mostra l'output. Se emerge un errore durante il test, applica il ciclo di **Self-Annealing** (fix nello script + regola permanente nella Direttiva). Aggiorna la roadmap e appendi una riga al log (`clients/<slug>/log.md` o `wiki/log.md`). Suggerisci `/pubblica` per versionare.
 
 Contenuti generati per aziende italiane: **in italiano**.
 

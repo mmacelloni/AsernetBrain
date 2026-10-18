@@ -41,15 +41,13 @@ l'ultima volta e cosa era rimasto in sospeso.
 
 **Priorità dichiarate dal cliente** — cosa gli sta a cuore, con parole sue se le hai.
 
-**Segnali di attenzione** — rischi o tensioni (ritardi, promesse non mantenute,
-silenzi, pagamenti) — solo se emergono dai dati, senza allarmismi inventati.
+**Segnali di attenzione & Questioni Aperte (`QUESTION` OIDA)** — rischi o tensioni (ritardi, promesse non mantenute, silenzi, pagamenti) + le `QUESTION` aperte a più alta gravità epistemica in `purpose.md`.
 
-**3 punti da mettere in agenda** — le tre cose più utili da affrontare in questa
-call, derivate da pendenze + priorità + scostamenti sopra.
+**😈 Devil's Advocate per la Call** — le **2-3 obiezioni o domande più scomode** che il cliente potrebbe sollevare oggi (basate su scostamenti, ritardi o punti aperti) + la **contromisura / risposta fattuale pronta** per ciascuna.
+
+**3 punti da mettere in agenda** — le tre cose più utili da affrontare in questa call, derivate da pendenze + priorità + `QUESTION` aperte sopra.
 
 ## Regole
-- Ogni affermazione deve poggiare su un dato trovato: se inferisci, marcalo come
-  ipotesi. Mai inventare fatti su un cliente reale.
+- Ogni affermazione deve poggiare su un dato trovato: se inferisci, marcalo come ipotesi (regola anti-*Appearance of Knowing*, Baum). Mai inventare fatti su un cliente reale.
 - Brevità: il consulente lo legge in 5 minuti prima di entrare in call.
-- Non proporre strategie elaborate: il brief orienta, non decide. Per stressare
-  una decisione emersa, rimanda a `/challenge`.
+- Non proporre strategie elaborate: il brief orienta, non decide. Per stressare una decisione strategica ad alto impatto, rimanda a `/challenge` (Cognitos Sum).

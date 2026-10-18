@@ -187,21 +187,32 @@ SINTESI — PUNTI CHIAVE
 · [il segnalpost più critico da tenere d'occhio]
  
 (max 5 punti, scritti per essere condivisi con il cliente)
+
+GRIGLIA EPISTEMICA (`Reflect` — Cognitive Core & OIDA)
+
+· **Stabilito dalle fonti (`established`):** [fatti verificati nei documenti/metriche del cliente]
+· **Assunto senza prove (`assumed`):** [premesse date per buone ma non dimostrate]
+· **Evidenze mancanti (`evidence_missing` → generano `QUESTION` OIDA):** [quali dati mancano per confermare la diagnosi]
+· **Fatto portante (`load_bearing_fact`):** [il singolo fatto su cui poggia tutta la diagnosi: se cade questo, cade la tesi]
+· **Coherence Flags:** `NESSUNO` *(oppure `UNRESOLVED_EVIDENCE_GAPS` / `UNWARRANTED_RECOMMENDATION`)*
  
-MEMORIA DI PROGETTO (in AsernetBrain) — se la diagnosi riguarda un cliente presente (o da creare) in `clients/<slug>/` (risolto automaticamente da `clients/index.md` o `qmd-asernet` anche senza `/prime`), aggiorna **`clients/<slug>/purpose.md`** con: problema reale, punti di leva, scenari/segnalpost, prossimo passo suggerito e data (`updated: YYYY-MM-DD`). Appendi anche una voce in **`clients/<slug>/log.md`** e **`clients/log.md`**: `- YYYY-MM-DD · asermind · Diagnosi conclusa — <problema reale in breve>`.
+MEMORIA DI PROGETTO (in AsernetBrain) — se la diagnosi riguarda un cliente presente (o da creare) in `clients/<slug>/` (risolto automaticamente da `clients/index.md` o `qmd-asernet` anche senza `/prime`), aggiorna **`clients/<slug>/purpose.md`**:
+1. Nella sezione `## 🧭 2. Tesi in Evoluzione`: salva problema reale, punti di leva, scenari/segnalpost e la **Griglia Epistemica (`Reflect`)**.
+2. Nella sezione `## ❓ 1. Questioni Aperte (OIDA QUESTION)`: trasforma ogni `evidence_missing` critica in una riga `QUESTION` con `Stato: open` e data odierna (così acquisirà gravità epistemica col passare dei giorni finché non viene risolta).
+3. Appendi una voce in **`clients/<slug>/log.md`** e **`clients/log.md`**: `- YYYY-MM-DD · asermind · Diagnosi conclusa — <problema reale in breve>`.
  
 ---
  
-GATE EPISTEMOLOGICO · /challenge (opzionale, ad alto rischio)
+GATE EPISTEMOLOGICO · /challenge (Cognitos Sum — opzionale, ad alto rischio)
  
-La diagnosi AserMind è un **giudizio probabilistico**: il rischio non è l'esecuzione, è agire su una lettura plausibile ma sbagliata. Prima che il consulente porti la diagnosi al cliente o ci costruisca sopra un intervento, offri il gate:
+La diagnosi AserMind è un **giudizio probabilistico**: il rischio non è l'esecuzione, è l'*Appearance of Knowing* (Baum) o l'*errore silenzioso* (Cognitive Core). Prima che il consulente porti la diagnosi al cliente o ci costruisca sopra un intervento, offri il gate:
  
-"Vuoi che sottoponga questa diagnosi a `/challenge`? Costruisce il contro-argomento più forte, isola le assunzioni fragili e dà un verdetto (regge / da rinforzare / da rivedere)."
+"Vuoi che sottoponga questa diagnosi a `/challenge` (Cognitos Sum)? Costruisce il contro-argomento più forte, decostruisce i bias, verifica i Coherence Flags e dà un verdetto."
  
-· Proponilo — non forzarlo — quando la diagnosi è ad **alta posta** (decisione costosa, difficile da invertire) o quando la confidenza del "Problema reale" è **Media/Ipotesi**.
+· Proponilo — non forzarlo — quando la diagnosi è ad **alta posta** (decisione costosa, difficile da invertire), quando è attivo un Coherence Flag o quando la confidenza del "Problema reale" è **Media/Ipotesi**.
 · È un gate **on-demand**: non lanciarlo su ogni diagnosi, solo dove il costo dell'errore lo giustifica.
 · Se `/challenge` restituisce 🔴/🟡, riapri la FASE 3 (Reframe) sui punti che non hanno retto, non procedere.
-· `/challenge` è il complemento speculare della disciplina DOE del layer Automazioni: DOE rende affidabile ciò che *esegui*, il gate rende rigoroso ciò che *giudichi*.
+· `/challenge` (Cognitos Sum) è il complemento speculare della disciplina **DOE** del layer Automazioni: DOE rende affidabile ciò che *esegui*, Cognitos Sum rende rigoroso ciò che *giudichi*.
  
 ---
  

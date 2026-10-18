@@ -1,48 +1,54 @@
 ---
 name: chiedi
-description: Interroga AsernetBrain (wiki aziendale, domini tecnici o clienti) usando il motore di ricerca ibrido locale QMD (MCP qmd-asernet) e gli index.md. Risponde citando le pagine con provenienza, oppure dichiara esplicitamente che il vault non copre l'argomento invece di improvvisare.
+description: Interroga AsernetBrain (wiki aziendale, domini tecnici, clienti o task personali) usando QMD (MCP qmd-asernet) con Risoluzione di Stato OIDA e Badge Epistemico anti-Appearance of Knowing (Baum). Distingue decisioni in vigore, ipotesi/bozze e ignoranza modellata (QUESTION).
 argument-hint: "[la domanda]"
-allowed-tools: Read, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash, Edit
 ---
 
-# Query su AsernetBrain (`/chiedi`)
+# Query Governata su AsernetBrain (`/chiedi` — OIDA + Baum State Resolution)
 
 Domanda: `$ARGUMENTS`
 
 ## 1. Zero-Friction (Nessun blocco su `/prime`)
 Non bloccare mai l'utente se non ha eseguito `/prime` in questa sessione:
-- Se necessario e disponibile, esegui un rapido `vault_sync` (o `git pull --ff-only` silenzioso) in autonomia, oppure procedi direttamente alla ricerca locale.
-- Se la domanda riguarda un **cliente**, risolvilo automaticamente tramite `qmd-asernet` (`-c asernet-clients`) e `clients/index.md`, caricando direttamente i file in `clients/<slug>/` (`index.md`, `state.md`, `purpose.md`, `key-metrics.md`, `log.md`).
+- Se la domanda riguarda un **cliente**, risolvilo automaticamente tramite `qmd-asernet` (`-c asernet-clients`) e `clients/index.md`, caricando i file in `clients/<slug>/` (`index.md`, `state.md`, `purpose.md`, `key-metrics.md`, `log.md`).
+- Se riguarda task personali, incrocia con `personal/tasks-clickup.md` e `personal/index.md`.
 
-## 2. Procedura di Ricerca (Query Router QMD Locale + Index)
+## 2. Procedura di Ricerca (Query Router QMD Locale + Risoluzione di Stato OIDA)
 
 1. **Ricerca ibrida locale con QMD (`--index asernetbrain`):**
-   - Usa gli strumenti del server MCP **`qmd-asernet`** (oppure via CLI `qmd --index asernetbrain query "<domanda>" --json -n 8`) scegliendo la collection più adatta:
-     - `asernet-clients` → schede clienti, stato, diagnosi AserMind, contatti, progetti, storico (`clients/`)
-     - `asernet-personal` → task ClickUp personali dell'utente, scadenze e note private (`personal/`, solo locale)
-     - `asernet-wiki` → procedure aziendali, SOP, prodotti, concetti (`wiki/`)
-     - `asernet-topics` → domini tecnici verticali (`topics/`)
-     - *(nessun filtro `-c` per domande trasversali o che uniscono stato aziendale + task personali)*
-2. **Fallback strutturale:**
-   - Se lo score di QMD è basso (`< 0.3`) o per navigazione panoramica, leggi `clients/index.md`, `personal/tasks-clickup.md`, `wiki/index.md` o `topics/index.md`.
-3. **Lettura mirata:**
-   - Apri **solo** le pagine rilevanti (massimo 6 pagine; se la domanda è troppo ampia, chiedi di restringerla).
+   - Usa il server MCP **`qmd-asernet`** scegliendo la collection più adatta (`asernet-clients`, `asernet-personal`, `asernet-wiki`, `asernet-topics`).
+2. **Risoluzione Epistemica dello Stato (OIDA State Resolution):**
+   - Quando apri le pagine candidate (massimo 6), **non trattare tutti i documenti come uguali**. Controlla per ciascuno:
+     - **`epistemic_class` e `status`**: è una `DECISION` / `SOP` / `FACT` approvata (`status: reviewed` o `in_force`), oppure è solo una bozza (`draft`), un'ipotesi (`HYPOTHESIS`) o una decisione superata (`superseded`)?
+     - **`scope`**: la decisione o procedura trovata si applica davvero all'ambito chiesto dall'utente (`global` vs `client:<slug>`)?
+     - **`supersedes` / `contradicts`**: esiste una decisione più recente che ha sostituito quella trovata, o una contraddizione aperta?
+   - Controlla anche `wiki/questions.md` (o la sezione `QUESTION` di `clients/<slug>/purpose.md`) per vedere se la domanda corrisponde a una **Questione Aperta (`QUESTION`)** già nota.
 
-## 3. Soglia di astensione (regola non derogabile per la Zona Governata `wiki/`)
+## 3. Regola Anti-"Appearance of Knowing" (Baum, 2026) e Soglia di Astensione
 
-Prima di scrivere la risposta su procedure o documentazione aziendale, poniti questa domanda: *l'affermazione centrale della mia risposta è scritta in una pagina che ho aperto, oppure la sto costruendo io mettendo insieme frammenti debolmente pertinenti?*
+È severamente vietato produrre risposte fluide e apparentemente certe quando il vault non contiene una fonte validata o una decisione in vigore per quello specifico `scope`.
+Ogni risposta **deve iniziare con uno dei 3 Badge Epistemici**:
 
-Nel secondo caso la risposta corretta è:
-> AsernetBrain non contiene ancora una risposta documentata a questa domanda.
+- 🟢 **`[STATO: IN VIGORE · DECISION / FACT VALIDATO]`** → La risposta poggia su una decisione approvata (`in_force`) o una pagina `reviewed` con `provenance`. Specifica chi l'ha approvata/validata, a quale `scope` si applica ed eventuale `supersedes`.
+- 🟡 **`[STATO: IPOTESI / BOZZA NON VALIDATA]`** → Nel vault esiste solo una pagina in `status: draft`, una proposta in attesa o una `HYPOTHESIS` di `/asermind` non ancora confermata. Riporta il contenuto avvisando chiaramente che **non è ancora una decisione in vigore**.
+- 🔴 **`[STATO: EVIDENZA INSUFFICIENTE · QUESTION APERTA]`** → Il vault non copre la domanda per questo `scope` (oppure esistono fonti in contraddizione non risolta).
+  - Dichiara esplicitamente: *"AsernetBrain non contiene ancora una decisione o fonte validata su questo punto."*
+  - Mostra l'eventuale decisione più vicina spiegando perché non copre il caso (`SCOPE_MISMATCH`).
+  - **Meccanismo OIDA `QUESTION`:** proponi subito all'utente:
+    > *"Vuoi che registri questa lacuna come `QUESTION` a decadimento inverso in `wiki/questions.md` (o in `clients/<slug>/purpose.md`) assegnandola a `<owner>`?"*
 
-seguita da cosa manca e quale fonte servirebbe per colmarlo. Se aggiungi una risposta basata sulla tua conoscenza generale, mettila in un blocco **separato e chiaramente marcato come esterno al vault**.
+*(Se aggiungi un suggerimento basato sulla tua conoscenza generale esterna al vault, racchiudilo in un box separato intitolato `💡 Conoscenza Generale Esterna (Non Governata da AsernetBrain)`).*
 
-## 4. Formato della risposta
+## 4. Formato della Risposta
 
 ```markdown
+🟢/🟡/🔴 **[STATO: <IN VIGORE | IPOTESI/BOZZA | EVIDENZA INSUFFICIENTE>]** · **Ambito (`scope`):** `<scope>`
+
 <risposta chiara e concisa, con [link](percorso.md) alle pagine da cui proviene ogni affermazione>
 
 ---
-**Fonti nel vault:** <elenco pagine aperte + eventuale `provenance.user` se il documento grezzo è in `raw/`>
-**Confidenza:** alta | media | bassa — <perché>
+- **Decisione / Fonte applicata:** `<percorso.md>` (`epistemic_class`, approvata da `<reviewed_by>`, eventuale `supersedes`)
+- **Provenienza `raw/`:** `<user>` · `<raw_path>` (`<sha256>`) *(se presente)*
+- **Conflitti o Questioni Aperte (`QUESTION`):** Nessuno *(oppure ID della QUESTION attiva)*
 ```

@@ -75,10 +75,25 @@ AsernetBrain/
    - Pensata per la velocità operativa quotidiana (`/prime`, `/debrief`, `/asermind`, `/challenge`, `/refresh-data`).
    - Nessun blocco `reviewed_by` obbligatorio per aggiornare stato, debrief o metriche di un cliente, ma quando si acquisisce un documento in `raw/clients/<slug>/` si traccia sempre il blocco `provenance` (`user` + `raw_path`).
    - Separazione netta tra **contesto stabile** (`index.md`) e **contesto volatile** (`state.md` + `key-metrics.md`).
-4. **Zona Riservata Personale (`personal/`) — "Privata in Git, Unificata in Locale":**
-   - Ogni utente ha il proprio angolino privato in `personal/` (`personal/tasks-clickup.md`, `personal/index.md`, `personal/notes/`, `personal/data/personal.db`).
-   - Tutto il contenuto di `personal/` (eccetto `personal/README.md`) è **escluso da Git** (`.gitignore`): non sale mai sulla VPS e non è mai visibile agli altri colleghi.
-   - È però indicizzato dal QMD locale del singolo utente nella collection **`asernet-personal`**: quando l'utente lavora sul proprio PC, Claude incrocia automaticamente i suoi task personali (es. ClickUp personale) con le schede aziendali condivise (`clients/<slug>/` e `wiki/`).
+4. **Zona Riservata Personale (`personal/`) — Sub-Repo Privato Isolato per Utente:**
+   - Ogni utente ha il proprio sub-repo privato `personal/` (`/srv/git/personal/<id>.git`), sincronizzato e fuso automaticamente ad ogni `vault_sync` / `vault_publish` e `git pull` / `git push`, ma **inaccessibile agli altri colleghi** a livello SSH (`asernet-git-guard`).
+   - È indicizzato dal QMD locale del singolo utente nella collection **`asernet-personal`**.
+
+### 2.5 Infrastruttura Epistemica e Operativa (OIDA + Cognitive Core + Baum + DOE + Cognitos Sum + Devil's Advocate)
+
+Vedi la specifica completa in [`wiki/concepts/architettura-epistemica-asernetbrain.md`](wiki/concepts/architettura-epistemica-asernetbrain.md):
+1. **Anti-"Appearance of Knowing" (Baum, 2026):** non presentare mai inferenze o ipotesi con la stessa certezza grafica di una decisione approvata. Usa i Badge Epistemici in `/chiedi`:
+   - 🟢 `[IN VIGORE · DECISION / FACT]` · 🟡 `[IPOTESI / BOZZA]` · 🔴 `[EVIDENZA INSUFFICIENTE · QUESTION]`
+2. **Tipizzazione Epistemica e `QUESTION` a Decadimento Inverso (OIDA, 2026):**
+   - Tipizza la conoscenza con `epistemic_class` (`DECISION`, `SOP`, `FACT`, `HYPOTHESIS`, `QUESTION`), `scope` (`global` o `client:<slug>`) e `supersedes`.
+   - Le lacune conoscitive e le decisioni mancanti sono tracciate come **`QUESTION`** in `wiki/questions.md` e `clients/<slug>/purpose.md` con **decadimento inverso** ($\text{Gravità} = \text{giorni aperti} \times \text{peso}$): più restano aperte, più salgono in cima in `/prime`, `/client-brief` e `/lint`.
+3. **Griglia `Reflect` e Coherence Flags (Cognitive Core, 2026):**
+   - In `/asermind` e `/challenge`, separa obbligatoriamente: `established` (provato dalle fonti), `assumed` (assunto), `evidence_missing` (prove mancanti → aprono `QUESTION` OIDA) e `load_bearing_fact` (fatto portante), segnalando i Coherence Flags (`UNRESOLVED_EVIDENCE_GAPS`, `UNWARRANTED_RECOMMENDATION`, `SCOPE_MISMATCH`).
+4. **Cognitos Sum (`/challenge`) + 😈 Devil's Advocate nei Processi:**
+   - `/challenge` attiva l'agente costituzionale **Cognitos Sum** (7 Principi, decostruzione cornici cognitive/bias, Red Team, Pre-Mortem e Metacognizione).
+   - Il **😈 Devil's Advocate di Processo** (*3 motivi specifici di fallimento/obiezione + contromisura pratica*) è integrato nativamente dentro `/client-brief`, `/debrief`, `client-project-kickoff` e `client-automation`.
+5. **DOE Pattern + Self-Annealing + Gate 9/10 (`actions/` e `connectors/`):**
+   - La metà deterministica separa **Direttiva** (SOP Markdown), **Orchestrazione** (Claude) ed **Esecuzione** (Script Python). Ogni errore aggiorna la Direttiva (*Self-Annealing*); nessuna automazione va in scheduling automatico prima di **9/10 esecuzioni reali corrette** (Metodo 3C).
 
 ---
 

@@ -33,20 +33,24 @@ essere una lezione da ricordare (la strategia sta cambiando, o è emersa una reg
 implicita). `client-learn` classifica e chiede conferma prima di scrivere — non
 scrivere tu direttamente in `lezioni.md`.
 
-## 3. Recap prima di scrivere
-Prima di toccare qualsiasi file, mostra **cosa hai capito** e **l'elenco preciso
-delle modifiche** che stai per fare (quali file, quali righe/valori). Ottieni
-conferma. Non riscrivere interi file: aggiorna solo ciò che è cambiato.
+## 3. Recap + 😈 Devil's Advocate di Processo prima di scrivere
+Prima di toccare qualsiasi file:
+1. Mostra **cosa hai capito** e **l'elenco preciso delle modifiche** che stai per fare (`state.md`, `purpose.md`, `projects.md`, `log.md`).
+2. **😈 Check Devil's Advocate (rapido, 3 punti max):** segnala se tra le decisioni o promesse emerse oggi c'è:
+   - un impegno con rischio operativo / dipendenza bloccante + **contromisura pratica immediata**;
+   - una contraddizione con una `DECISION` (`in_force`) in `purpose.md` (chiedendo se la `supersedes`);
+   - una lacuna informativa da registrare come **`QUESTION` OIDA** in `purpose.md`.
+3. Ottieni conferma dall'utente prima di scrivere.
 
 ## 4. Aggiorna la scheda del cliente in `clients/<slug>/`
 Dopo conferma:
 - **`clients/<slug>/log.md`** (e una riga sintetica in **`clients/log.md`**) — appendi in cima una entry datata (`## [YYYY-MM-DD] debrief | <utente>`) con: avanzamenti, decisioni, azioni aperte. Append-only: non modificare entry precedenti.
-- **`clients/<slug>/state.md`**, **`purpose.md`** o **`projects.md`** — aggiorna quelli pertinenti con i nuovi fatti. **Non** toccare `clients/<slug>/key-metrics.md` (è autogenerato da `refresh.py`): se sono cambiati i numeri di sorgente, ricorda all'utente di rigenerare le metriche.
+- **`clients/<slug>/state.md`**, **`purpose.md`** (incluse eventuali nuove `DECISION` o `QUESTION` OIDA) o **`projects.md`** — aggiorna quelli pertinenti con i nuovi fatti. **Non** toccare `clients/<slug>/key-metrics.md` (è autogenerato da `refresh.py`).
 
 ## 5. Chiusura
 - Riepiloga in 3 righe cosa hai registrato.
-- Se sono emerse azioni aperte con scadenza, elencale come promemoria per domani.
-- Se l'utente usa **InfraOS**, suggerisci **`/commit`** per versionare il debrief.
+- Se sono emerse azioni aperte con scadenza o nuove `QUESTION`, elencale come promemoria per domani.
+- Suggerisci **`/pubblica`** per sincronizzare subito con la VPS.
 
 ## Regole
 - Sei un archivista, non un esecutore: qui **non** costruisci automazioni né

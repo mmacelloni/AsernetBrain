@@ -1,9 +1,10 @@
 # 🧠 AsernetBrain — Company Brain & AI Operating System
 
 **AsernetBrain** è il repository aziendale condiviso di **Asernet S.r.l.** che unifica in un'unica architettura multi-utente:
-1. **FullBrain** — struttura multi-dominio (`wiki/`, `topics/`, `clients/`), Query Router QMD locale e recupero **Zero-Friction** (interroga qualsiasi cliente, procedura o task personale da qualsiasi cartella, anche senza lanciare `/prime`).
-2. **AsernetOS (`v1.3.0`)** — server MCP Git sicuro (`vault-asernet` con controllo anti-sovrapposizione `L ∩ R` e sync congiunto `main` + `personal/`), registro identità (`_meta/authors.md`), provenance crittografica di `raw/` e governance OKF per la documentazione interna.
-3. **AserMind (`v0.7.1`)** — i 5 livelli operativi per ogni cliente (*ContextOS, DataOS, IntelOS, AutomationOS DOE, DashboardOS*), diagnostica sistemica **AserMind**, gate epistemologico `/challenge` (**Cognitos**) e motore di apprendimento continuo `client-learn` (`/contribuisci`, `/rivedi-proposte`).
+1. **FullBrain** — struttura multi-dominio (`wiki/`, `topics/`, `clients/`), Query Router QMD locale e recupero **Zero-Friction** (interroga qualsiasi cliente, procedura o task personale da qualsiasi cartella, anche senza lanciare `/prime`), più i pattern **DOE** (*Direttiva / Orchestrazione / Esecuzione* con *Self-Annealing*) e **Cognitos Sum** (*Agente Epistemologico*).
+2. **AsernetOS (`v1.3.0`)** — server MCP Git sicuro (`vault-asernet` con controllo anti-sovrapposizione `L ∩ R`, sync congiunto `main` + `personal/` e 21 Prompt MCP nativi per Claude Desktop), registro identità (`_meta/authors.md`), provenance crittografica di `raw/` e governance OKF per la documentazione interna.
+3. **AserMind (`v0.7.1`)** — i 5 livelli operativi per ogni cliente (*ContextOS, DataOS, IntelOS, AutomationOS DOE, DashboardOS*), diagnostica sistemica **AserMind**, gate epistemologico `/challenge`, **😈 Devil's Advocate nei Processi** (`/client-brief`, `/debrief`, `client-project-kickoff`, `client-automation`) e motore di apprendimento continuo `client-learn` (`/contribuisci`, `/rivedi-proposte`).
+4. **Infrastruttura Epistemica Governata (OIDA + Cognitive Core + Baum)** — tipizzazione della conoscenza in 5 classi (`DECISION`, `SOP`, `FACT`, `HYPOTHESIS`, `QUESTION`), registro delle lacune con **Inverse Decay** (`wiki/questions.md`), griglia `Reflect` + `Coherence Flags` e Badge Epistemici obbligatori (`🟢 IN VIGORE`, `🟡 IPOTESI/BOZZA`, `🔴 EVIDENZA INSUFFICIENTE · QUESTION`).
 
 ---
 

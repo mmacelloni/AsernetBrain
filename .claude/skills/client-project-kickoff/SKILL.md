@@ -142,6 +142,12 @@ projects where there's no site to template.
 9. **Propose extra folders** (e.g. `sito/`, `contenuti/`, `social/`) based
    on the project type from question 1 — ask before creating, don't create
    speculatively.
+10. **😈 Devil's Advocate di Kickoff (obbligatorio a fine setup):** prima di
+    chiudere il kickoff, presenta sempre un box **"😈 Devil's Advocate del Progetto"**
+    con **3 motivi specifici** per cui questo progetto potrebbe bloccarsi, sforare i tempi
+    o deludere il cliente (es. materiali mancanti in `raw/`, vincoli tecnici del tema/stack,
+    ambiguità sul target) + la **soluzione pratica preventiva** per ciascuno. Registra eventuali
+    incognite aperte come `QUESTION` in `clients/<slug>/purpose.md`.
 
 ### brand/brand-identity.md template
 
