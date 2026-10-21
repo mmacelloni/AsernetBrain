@@ -6,8 +6,8 @@ Lo lancia solo asernet-git-guard, che passa come argv[1] l'utente autenticato
 dalla chiave SSH: chi interroga lo stabilisce la VPS, non il client.
 Input: un oggetto JSON su stdin. Output: un oggetto JSON su stdout.
 
-  {"action": "schema", "cliente": "shopincasa"}                         → dataset ammessi
-  {"action": "schema", "cliente": "...", "dataset": "prestashop"}        → tabelle
+  {"action": "schema", "cliente": "acme"}                               → dataset ammessi
+  {"action": "schema", "cliente": "...", "dataset": "ordini"}            → tabelle
   {"action": "schema", "cliente": "...", "dataset": "...", "table": "x"} → colonne
   {"action": "query",  "cliente": "...", "sql": "SELECT ...", "max_rows": 100}
 

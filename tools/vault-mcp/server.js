@@ -1339,7 +1339,7 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        cliente: { type: 'string', description: 'Slug del cliente (clients/<slug>/), es. "shopincasa".' },
+        cliente: { type: 'string', description: 'Slug del cliente (clients/<slug>/), es. "acme".' },
         dataset: { type: 'string', description: 'Dataset da esplorare (opzionale).' },
         table: { type: 'string', description: 'Tabella di cui vedere le colonne (opzionale, richiede dataset).' },
       },
@@ -1354,7 +1354,7 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        cliente: { type: 'string', description: 'Slug del cliente (clients/<slug>/), es. "shopincasa".' },
+        cliente: { type: 'string', description: 'Slug del cliente (clients/<slug>/), es. "acme".' },
         sql: { type: 'string', description: 'Query SQL standard con nomi completi `progetto.dataset.tabella`.' },
         max_rows: { type: 'number', description: 'Righe da restituire (default e massimo 1000).' },
       },

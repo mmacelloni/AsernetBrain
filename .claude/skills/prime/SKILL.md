@@ -1,7 +1,7 @@
 ---
 name: prime
 description: "Avvio sessione AsernetBrain: sincronizza Git (main + personal/ via vault_sync), identifica l'utente attivo, calcola la Gravità Epistemica (Decadimento Inverso OIDA) delle QUESTION aperte e carica il contesto del cliente o aziendale."
-argument-hint: "[opzionale: slug del cliente, es. shopincasa]"
+argument-hint: "[opzionale: slug del cliente, es. acme]"
 ---
 
 # Avvio Sessione — `/prime` (AsernetBrain)

@@ -8,6 +8,7 @@ Catalogo centrale della Knowledge Base aziendale condivisa (Zona Governata OKF +
 ## 🏛️ Concepts (`wiki/concepts/`) — Architettura, Metodologie, SOP
 - [`architettura-epistemica-asernetbrain.md`](concepts/architettura-epistemica-asernetbrain.md) — `[DECISION · in_force]` I 5 pilastri di AsernetBrain: **DOE** (esecuzione deterministica) + **Cognitos Sum** (red-team costituzionale) + **OIDA** (tipizzazione epistemica e `QUESTION` a decadimento inverso) + **Cognitive Core** (`Reflect` e `Coherence Flags`) + **Baum** (anti-*Appearance of Knowing*).
 - [`doe-pattern.md`](concepts/doe-pattern.md) — `[SOP · in_force]` Pattern **DOE (Direttiva / Orchestrazione / Esecuzione)**, ciclo di **Self-Annealing** e **Gate 9/10 HITL (Metodo 3C)**.
+- [`sop-bigquery-service-account-cliente.md`](concepts/sop-bigquery-service-account-cliente.md) — `[SOP · draft]` Collegare il **BigQuery di un cliente** al brain con il service account Asernet sulla VPS: creazione, permessi per cliente, verifica, insidie di costo.
 - [`cognitos-sum-agente-epistemologico.md`](concepts/cognitos-sum-agente-epistemologico.md) — `[SOP · in_force]` **Cognitos Sum (`/challenge`)**: i 7 Principi Costituzionali, decostruzione delle cornici cognitive, Red Team e Metacognizione.
 
 ## Categorie
