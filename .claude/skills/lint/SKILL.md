@@ -1,9 +1,8 @@
 ---
 name: lint
-description: Health check di AsernetBrain (wiki/, topics/, clients/). Produce un report di anomalie (identità non registrate, autovalidazione agente, provenance raw mancante, orfani, link morti, contraddizioni, fusioni silenziose Git). Non modifica contenuto.
+description: "Health check di AsernetBrain (wiki/, topics/, clients/). Produce un report di anomalie (identità non registrate, autovalidazione agente, provenance raw mancante, orfani, link morti, contraddizioni, fusioni silenziose Git). Non modifica contenuto."
 argument-hint: "[opzionale: wiki | topics | clients/<slug> | nome controllo]"
 allowed-tools: Read, Glob, Grep, Edit, Bash
-disable-model-invocation: true
 ---
 
 # Lint di AsernetBrain (`/lint`)

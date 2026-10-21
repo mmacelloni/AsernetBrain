@@ -1,9 +1,8 @@
 ---
 name: ingest
-description: Ingerisce una fonte da raw/ (o raw/clients/<slug>/) in AsernetBrain (wiki/ o clients/<slug>/). Il file in raw/ resta sul disco locale (escluso da Git e mai cancellato), mentre nelle pagine create/aggiornate viene tracciato il blocco provenance (user + raw_path + sha256 + date). Esegue prima un dry run, attende approvazione, risincronizza con vault_sync e scrive solo dopo.
+description: "Ingerisce una fonte da raw/ (o raw/clients/<slug>/) in AsernetBrain (wiki/ o clients/<slug>/). Il file in raw/ resta sul disco locale (escluso da Git e mai cancellato), mentre nelle pagine create/aggiornate viene tracciato il blocco provenance (user + raw_path + sha256 + date). Esegue prima un dry run, attende approvazione, risincronizza con vault_sync e scrive solo dopo."
 argument-hint: "[percorso del file in raw/ o raw/clients/<slug>/]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
-disable-model-invocation: true
 ---
 
 # Ingest di una fonte in AsernetBrain (`raw/` Locale + Provenienza)

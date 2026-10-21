@@ -334,6 +334,21 @@ Ecco i **3 passaggi** per configurare il tuo Progetto **`AsernetBrain`** in Clau
 
 ---
 
+### 5.3 ⚠️ Avviso Sincronizzazione Automatica su Mac (Risoluzione Errore Pull)
+
+Se sul Mac di un collega (es. Mac di Anna) il `git pull` automatico (schedulato o tramite `vault_sync` / Obsidian Git) dovesse segnalare un errore di blocco per **file o cartelle non tracciate** in `.claude/skills/` (`untracked working tree files would be overwritten by merge`):
+
+1. **Causa:** presenza sul disco locale di cartelle di test create prima della pubblicazione ufficiale delle skill.
+2. **Risoluzione immediata:** aprire il Terminale sul Mac ed eseguire:
+   ```bash
+   cd /percorso/di/AsernetBrain
+   rm -rf .claude/skills/challenge .claude/skills/client-brief .claude/skills/contribuisci .claude/skills/debrief .claude/skills/help .claude/skills/prime .claude/skills/rivedi-proposte
+   git pull
+   ```
+3. Il pull scaricherà la versione ufficiale allineata (`origin/main`) e le successive sincronizzazioni automatiche ripartiranno regolarmente.
+
+---
+
 ## 📖 Guida all'Uso Quotidiano
 
 ### 1. Le 3 Zone di AsernetBrain

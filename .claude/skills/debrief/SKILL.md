@@ -1,4 +1,5 @@
 ---
+name: debrief
 description: "Debrief di fine giornata: Claude fa qualche domanda sui progressi e aggiorna il contesto dell'AsernetBrain (context + history.md). Chiude il ciclo /prime → lavoro → /debrief."
 argument-hint: "Nota rapida sulla giornata (opzionale)"
 ---
@@ -57,3 +58,4 @@ Dopo conferma:
   affronti nuove sfide. Registri e basta.
 - Mai inventare progressi: se l'utente non risponde a una domanda, salta quel punto.
 - Confidenza: se un dato riferito è incerto, segnalalo nel testo che scrivi.
+

@@ -1,6 +1,6 @@
 ---
 name: client-automation
-description: Costruisce il livello Automazioni (AutomationOS) di un AsernetBrain aziendale. Fa un audit dei task ripetitivi area per area (marketing, vendite, clienti, finanza, operations, dati) partendo dai file di contesto, produce una roadmap prioritizzata delle opportunità di automazione, e per ognuna chiede se costruirla ora (comando slash + script + eventuali tabelle nel database) o rimandarla come task futuro. Esempio tipico: generazione fatture con numerazione progressiva. Usa quando l'utente vuole automatizzare task operativi, mappare cosa automatizzare, o dopo aver costruito i livelli Contesto/Dati/Intelligence.
+description: "Costruisce il livello Automazioni (AutomationOS) di un AsernetBrain aziendale. Fa un audit dei task ripetitivi area per area (marketing, vendite, clienti, finanza, operations, dati) partendo dai file di contesto, produce una roadmap prioritizzata delle opportunità di automazione, e per ognuna chiede se costruirla ora (comando slash + script + eventuali tabelle nel database) o rimandarla come task futuro. Esempio tipico: generazione fatture con numerazione progressiva. Usa quando l'utente vuole automatizzare task operativi, mappare cosa automatizzare, o dopo aver costruito i livelli Contesto/Dati/Intelligence."
 argument-hint: "Nome azienda o automazione da creare (opzionale)"
 ---
 

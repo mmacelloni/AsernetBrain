@@ -1,9 +1,8 @@
 ---
 name: pubblica
-description: Pubblica sul repository Git aziendale (VPS) il lavoro dell'operazione appena conclusa tramite il server MCP vault-asernet. Prima verifica che nessun collega abbia toccato gli stessi file nel frattempo (L ∩ R); se c'è sovrapposizione si ferma e chiede all'utente. Aggiorna anche l'indice QMD locale.
+description: "Pubblica sul repository Git aziendale (VPS) il lavoro dell'operazione appena conclusa tramite il server MCP vault-asernet. Prima verifica che nessun collega abbia toccato gli stessi file nel frattempo (L ∩ R); se c'è sovrapposizione si ferma e chiede all'utente. Aggiorna anche l'indice QMD locale."
 argument-hint: "[opzionale: messaggio di commit]"
 allowed-tools: Read, Glob, Grep, Bash
-disable-model-invocation: true
 ---
 
 # Pubblica il lavoro (`/pubblica`)

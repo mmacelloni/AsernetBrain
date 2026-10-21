@@ -1,4 +1,5 @@
 ---
+name: prime
 description: "Avvio sessione AsernetBrain: sincronizza Git (main + personal/ via vault_sync), identifica l'utente attivo, calcola la Gravità Epistemica (Decadimento Inverso OIDA) delle QUESTION aperte e carica il contesto del cliente o aziendale."
 argument-hint: "[opzionale: slug del cliente, es. shopincasa]"
 ---
@@ -20,6 +21,7 @@ Rispondi sempre in italiano. Esegui questi passi in ordine all'inizio della sess
    - `personal/index.md` (priorità e note riservate dell'utente)
    - `personal/tasks-clickup.md` (task personali ClickUp dell'utente)
 3. Controlla `actions/users/<id>/roadmap.md` e `actions/shared/roadmap.md` (automazioni DOE).
+4. **Notifiche dai colleghi:** leggi `_meta/notifiche.md` e mostra **per prime**, in cima al briefing, le righe con **Per** = `<id>` dell'utente attivo. Dopo averle mostrate, **cancella quelle righe** (le altre restano) e aggiorna nel frontmatter `last_read_by: <id>` e `last_read: <oggi>`.
 
 ## 3. Calcolo Gravità Epistemica OIDA (`QUESTION` a Decadimento Inverso)
 - Leggi `wiki/questions.md` (e, se è specificato un cliente, la tabella `## ❓ 1. Questioni Aperte` in `clients/<slug>/purpose.md`).
@@ -48,3 +50,4 @@ Rispondi sempre in italiano. Esegui questi passi in ordine all'inizio della sess
      - 🔴 **Top Questioni Aperte (`QUESTION` OIDA)** ordinate per Gravità Epistemica;
      - 📋 **I tuoi task personali in scadenza** da `personal/tasks-clickup.md` e `personal/index.md`;
      - 🚀 **Clienti attivi** in `clients/index.md`.
+

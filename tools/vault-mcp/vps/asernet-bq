@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+"""
+asernet-bq — BigQuery in sola lettura per conto di un utente AsernetBrain.
+
+Lo lancia solo asernet-git-guard, che passa come argv[1] l'utente autenticato
+dalla chiave SSH: chi interroga lo stabilisce la VPS, non il client.
+Input: un oggetto JSON su stdin. Output: un oggetto JSON su stdout.
+
+  {"action": "schema", "cliente": "shopincasa"}                         → dataset ammessi
+  {"action": "schema", "cliente": "...", "dataset": "prestashop"}        → tabelle
+  {"action": "schema", "cliente": "...", "dataset": "...", "table": "x"} → colonne
+  {"action": "query",  "cliente": "...", "sql": "SELECT ...", "max_rows": 100}
+
+Progetto e dataset ammessi arrivano da clients/<slug>/connectors/config.yaml su
+main nel repo bare: una sola fonte di verità, la stessa che leggono i colleghi.
+"""
+import json, re, subprocess, sys, time
+from urllib.parse import quote
+from datetime import datetime, timezone
+
+import jwt, requests, yaml
+
+KEY = "/srv/secrets/bigquery/asernetbrain-bq.json"
+REPO = "/srv/git/asernetbrain.git"
+LOG = "/var/log/asernet-bq/queries.log"
+API = "https://bigquery.googleapis.com/bigquery/v2/projects/"
+MAX_BYTES = 10 * 10**9   # tetto per query: dry run sopra → rifiuto; maximumBytesBilled sul job
+MAX_ROWS = 1000
+TIMEOUT_S = 60
+
+USER = sys.argv[1] if len(sys.argv) > 1 else ""
+REQ = {}
+
+
+def log(**kw):
+    rec = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "user": USER,
+           "action": REQ.get("action"), "cliente": REQ.get("cliente"),
+           **({"sql": REQ["sql"]} if REQ.get("sql") else {}), **kw}
+    try:
+        with open(LOG, "a") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+
+
+def done(obj, code=0):
+    print(json.dumps(obj, ensure_ascii=False))
+    sys.exit(code)
+
+
+def fail(msg, **kw):
+    log(result="RIFIUTATA", error=msg, **kw)
+    done({"result": "ERRORE", "error": msg, **kw}, 1)
+
+
+def config(cliente):
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", cliente or ""):
+        fail("cliente non valido: serve lo slug di clients/<slug>/")
+    r = subprocess.run(["git", "--git-dir", REPO, "show", f"main:clients/{cliente}/connectors/config.yaml"],
+                       capture_output=True, text=True)
+    if r.returncode:
+        fail(f"nessun clients/{cliente}/connectors/config.yaml su main")
+    for s in yaml.safe_load(r.stdout).get("sources") or []:
+        if s.get("type") == "bigquery" and s.get("enabled") and s.get("auth") == "service_account":
+            ds = []
+            for v in (s.get("datasets") or {}).values():
+                ds += v if isinstance(v, list) else [v]
+            return s["project_id"], ds, s.get("bq_users") or []
+    fail(f"{cliente}: nessuna sorgente BigQuery attiva con auth: service_account in config.yaml")
+
+
+def token():
+    k = json.load(open(KEY))
+    now = int(time.time())
+    a = jwt.encode({"iss": k["client_email"], "scope": "https://www.googleapis.com/auth/bigquery",
+                    "aud": k["token_uri"], "iat": now, "exp": now + 600}, k["private_key"], algorithm="RS256")
+    r = requests.post(k["token_uri"], data={"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                                            "assertion": a}, timeout=20)
+    if r.status_code != 200:
+        fail("autenticazione Google fallita: chiave del service account assente o revocata")
+    return {"Authorization": "Bearer " + r.json()["access_token"]}
+
+
+def api(method, url, h, **kw):
+    j = requests.request(method, API + url, headers=h, timeout=TIMEOUT_S + 10, **kw).json()
+    if "error" in j:
+        fail("BigQuery: " + j["error"].get("message", str(j["error"])))
+    return j
+
+
+def value(field, v):
+    """Celle REST {v: ...} → valori JSON, ricorsivo su RECORD e REPEATED."""
+    if v is None:
+        return None
+    if field.get("mode") == "REPEATED":
+        return [value({**field, "mode": "NULLABLE"}, x["v"]) for x in v]
+    if field["type"] in ("RECORD", "STRUCT"):
+        return {f["name"]: value(f, c["v"]) for f, c in zip(field["fields"], v["f"])}
+    if field["type"] in ("INTEGER", "INT64"):
+        return int(v)
+    if field["type"] in ("FLOAT", "FLOAT64"):
+        return float(v)
+    if field["type"] in ("BOOLEAN", "BOOL"):
+        return v == "true"
+    return v
+
+
+def columns(fields, prefix=""):
+    out = []
+    for f in fields:
+        out.append({"name": prefix + f["name"], "type": f["type"], "mode": f.get("mode", "NULLABLE")})
+        if f.get("fields"):
+            out += columns(f["fields"], prefix + f["name"] + ".")
+    return out
+
+
+def location(project, ds, h):
+    return api("GET", f"{project}/datasets/{ds}", h).get("location", "?")
+
+
+def schema(project, allowed, h):
+    ds, table = REQ.get("dataset"), REQ.get("table")
+    if not ds:
+        return {"result": "OK", "project": project,
+                "datasets": [{"dataset": d, "location": location(project, d, h)} for d in allowed],
+                "note": "una query non può unire dataset di location diverse: in quel caso fare query separate"}
+    if ds not in allowed:
+        fail(f"dataset non ammesso per questo cliente: {ds}", allowed=allowed)
+    if table:
+        # Il nome finisce nell'URL: senza questo controllo "../" uscirebbe dal dataset ammesso.
+        if not re.fullmatch(r"[A-Za-z0-9_$-]{1,1024}", table):
+            fail("nome tabella non valido")
+        t = api("GET", f"{project}/datasets/{ds}/tables/{quote(table, safe='')}", h)
+        return {"result": "OK", "table": f"{project}.{ds}.{table}", "rows": t.get("numRows"),
+                "gb": round(int(t.get("numBytes", 0)) / 1e9, 2), "columns": columns(t["schema"]["fields"])}
+    names, page = [], None
+    while True:
+        j = api("GET", f"{project}/datasets/{ds}/tables", h, params={"maxResults": 1000, "pageToken": page})
+        names += [t["tableReference"]["tableId"] for t in j.get("tables", [])]
+        page = j.get("nextPageToken")
+        if not page:
+            break
+    # Tabelle a shard giornaliero (events_20240101, ...) raggruppate: 2677 nomi non servono a nessuno.
+    shards, tables = {}, []
+    for n in sorted(names):
+        m = re.fullmatch(r"(.+_)(\d{8})", n)
+        if m:
+            shards.setdefault(m[1] + "*", []).append(m[2])
+        else:
+            tables.append(n)
+    tables += [f"{p} ({len(d)} shard, {d[0]}..{d[-1]})" for p, d in shards.items()]
+    return {"result": "OK", "dataset": f"{project}.{ds}", "tables": tables}
+
+
+def query(project, allowed, h):
+    sql = (REQ.get("sql") or "").strip().rstrip(";").strip()
+    bare = re.sub(r"--[^\n]*|/\*.*?\*/", " ", sql, flags=re.S).strip()
+    if not re.match(r"(?is)^(select|with)\b", bare) or ";" in bare:
+        fail("solo una singola query SELECT/WITH in sola lettura")
+    max_rows = max(1, min(int(REQ.get("max_rows") or MAX_ROWS), MAX_ROWS))
+    q = {"query": sql, "useLegacySql": False}
+
+    # BigQuery non unisce dataset di regioni diverse e lo segnala con un "Access Denied" fuorviante:
+    # meglio dirlo prima, in chiaro. Controllo fatto solo se la query nomina più di un dataset.
+    named = [d for d in allowed if re.search(r"\b" + re.escape(d) + r"\.", sql)]
+    if len(named) > 1:
+        locs = {d: location(project, d, h) for d in named}
+        if len({l.lower() for l in locs.values()}) > 1:
+            fail("la query unisce dataset in location diverse, BigQuery non può farlo: "
+                 "dividila in query separate (una per location) e unisci i risultati dopo", locations=locs)
+
+    dry = api("POST", f"{project}/jobs", h, json={"configuration": {"query": q, "dryRun": True}})
+    # La regex sopra è solo un primo filtro: decide BigQuery, che ha già analizzato la query.
+    # SCRIPT, DML, DDL ed EXPORT DATA hanno un altro statementType.
+    if dry["statistics"].get("query", {}).get("statementType") != "SELECT":
+        fail("solo query SELECT: BigQuery la classifica come "
+             + str(dry["statistics"].get("query", {}).get("statementType")))
+    est = int(dry["statistics"]["totalBytesProcessed"])
+    refs = dry["statistics"].get("query", {}).get("referencedTables", [])
+    out = [f'{t["projectId"]}.{t["datasetId"]}.{t["tableId"]}' for t in refs
+           if t["projectId"] != project or t["datasetId"] not in allowed]
+    if out:
+        fail("la query tocca tabelle fuori dai dataset ammessi per questo cliente", tables=out, allowed=allowed)
+    if est > MAX_BYTES:
+        fail(f"la query leggerebbe {est / 1e9:.1f} GB, oltre il tetto di {MAX_BYTES / 1e9:.0f} GB: "
+             "restringi date (_TABLE_SUFFIX / segments_date) e colonne", estimated_gb=round(est / 1e9, 2))
+
+    j = api("POST", f"{project}/queries", h, json={**q, "maxResults": max_rows, "timeoutMs": TIMEOUT_S * 1000,
+                                                   "maximumBytesBilled": str(MAX_BYTES)})
+    job = j["jobReference"]
+    deadline = time.time() + TIMEOUT_S
+    while not j.get("jobComplete"):
+        if time.time() > deadline:
+            requests.post(f'{API}{project}/jobs/{job["jobId"]}/cancel', headers=h,
+                          params={"location": job.get("location")}, timeout=10)
+            fail(f"timeout di {TIMEOUT_S} s: job annullato")
+        j = api("GET", f'{project}/queries/{job["jobId"]}', h,
+                params={"maxResults": max_rows, "timeoutMs": 10000, "location": job.get("location")})
+
+    fields = j["schema"]["fields"]
+    rows = [{f["name"]: value(f, c["v"]) for f, c in zip(fields, r["f"])} for r in j.get("rows", [])]
+    total = int(j.get("totalRows", len(rows)))
+    billed = int(j.get("totalBytesBilled") or 0)
+    log(result="OK", gb_processed=round(int(j.get("totalBytesProcessed") or 0) / 1e9, 3),
+        gb_billed=round(billed / 1e9, 3), rows=total)
+    return {"result": "OK", "project": project, "gb_processed": round(int(j.get("totalBytesProcessed") or 0) / 1e9, 3),
+            "gb_billed": round(billed / 1e9, 3), "cache_hit": j.get("cacheHit", False), "total_rows": total,
+            "returned": len(rows), "truncated": total > len(rows),
+            "columns": [f["name"] for f in fields], "rows": rows}
+
+
+if __name__ == "__main__":
+    if not USER:
+        done({"result": "ERRORE", "error": "nessun utente: va lanciato da asernet-git-guard"}, 1)
+    try:
+        REQ = json.loads(sys.stdin.read(200_000) or "{}")
+    except ValueError:
+        fail("input non è JSON")
+    project, allowed, users = config(REQ.get("cliente"))
+    # Decisione B: per cliente, elenco esplicito in config.yaml. Elenco assente o vuoto = nessuno.
+    # ponytail: l'elenco sta su main, quindi chi può pushare può aggiungersi; la traccia resta in git log.
+    if USER not in users:
+        fail(f"{USER} non è autorizzato sul BigQuery di {REQ.get('cliente')}: va aggiunto a bq_users "
+             f"in clients/{REQ.get('cliente')}/connectors/config.yaml", bq_users=users)
+    h = token()
+    if REQ.get("action") == "schema":
+        done(schema(project, allowed, h))
+    if REQ.get("action") == "query":
+        done(query(project, allowed, h))
+    fail("action deve essere 'query' o 'schema'")

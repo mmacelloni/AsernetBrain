@@ -1,6 +1,6 @@
 ---
 name: client-learn
-description: Motore interno di apprendimento dell'AsernetBrain. Trasforma correzioni ed errori in regole permanenti per quel cliente (lezioni.md) o in feedback di processo sul prodotto AsernetBrain (onboarding-feedback-prodotto.md), promuove i contributi degli operatori (/contribuisci) nello strato lezioni con contradiction-gate, e ad ogni /prime genera prospettive proattive. NON è un comando esposto all'utente: è invocata internamente da altre skill/comandi (challenge, debrief, asermind, i livelli AsernetBrain, prime, contribuisci, rivedi-proposte). Usa quando un touchpoint segnala una correzione/frizione, quando un operatore invia un contributo, o quando /prime chiede le prospettive.
+description: "Motore interno di apprendimento dell'AsernetBrain. Trasforma correzioni ed errori in regole permanenti per quel cliente (lezioni.md) o in feedback di processo sul prodotto AsernetBrain (onboarding-feedback-prodotto.md), promuove i contributi degli operatori (/contribuisci) nello strato lezioni con contradiction-gate, e ad ogni /prime genera prospettive proattive. NON è un comando esposto all'utente: è invocata internamente da altre skill/comandi (challenge, debrief, asermind, i livelli AsernetBrain, prime, contribuisci, rivedi-proposte). Usa quando un touchpoint segnala una correzione/frizione, quando un operatore invia un contributo, o quando /prime chiede le prospettive."
 ---
 
 # AsernetBrain — client-learn (motore di apprendimento)

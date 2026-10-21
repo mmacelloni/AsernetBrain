@@ -1111,6 +1111,46 @@ function vaultListDir({ dir_path }) {
   return { exists: true, path: relFromRoot, entries };
 }
 
+// ------------------------------------------------------------- bigquery
+
+/**
+ * BigQuery in sola lettura, eseguito sulla VPS da `asernet-bq`.
+ *
+ * Host e chiave sono quelli di `origin`: chi può fare pull può interrogare,
+ * senza configurazione in più. Il client qui non è fidato: sola lettura,
+ * dataset ammessi, tetto ai byte e log di chi interroga cosa stanno tutti
+ * sulla VPS, dove l'utente lo stabilisce la chiave SSH e non questo processo.
+ */
+function bqCall(payload) {
+  assertVault();
+  const origin = gitOrThrow(['remote', 'get-url', 'origin']);
+  const m = origin.match(/^(?:ssh:\/\/)?([^/:@]+@[^/:]+)(?::(\d+))?/);
+  if (!m) throw new Error(`origin non è un remoto SSH, non so dove sia la VPS: ${origin}`);
+  const args = ['-o', 'BatchMode=yes', ...(m[2] ? ['-p', m[2]] : []), m[1], 'asernet-bq'];
+  let out;
+  try {
+    out = execFileSync('ssh', args, {
+      input: JSON.stringify(payload),
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 120000,
+    });
+  } catch (e) {
+    // asernet-bq risponde in JSON anche quando rifiuta (exit 1): quello è il referto.
+    out = e.stdout || '';
+    if (!out.trim()) throw new Error(`ssh verso la VPS fallito: ${String(e.stderr || e.message).trim()}`);
+  }
+  return JSON.parse(out);
+}
+
+function bqQuery({ cliente, sql, max_rows }) {
+  return bqCall({ action: 'query', cliente, sql, max_rows });
+}
+
+function bqSchema({ cliente, dataset, table }) {
+  return bqCall({ action: 'schema', cliente, dataset, table });
+}
+
 function discoverPrompts() {
   if (!VAULT_PATH) return [];
   const prompts = [];
@@ -1292,6 +1332,36 @@ const TOOLS = [
     inputSchema: { type: 'object', properties: {} },
     handler: vaultStashList,
   },
+  {
+    name: 'bq_schema',
+    description:
+      'Esplora il BigQuery di un cliente (sola lettura, eseguito sulla VPS col service account Asernet). Senza dataset: elenca i dataset ammessi; con dataset: le tabelle (gli shard giornalieri tipo events_YYYYMMDD sono raggruppati); con dataset + table: colonne, righe e dimensione. Da usare prima di bq_query.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        cliente: { type: 'string', description: 'Slug del cliente (clients/<slug>/), es. "shopincasa".' },
+        dataset: { type: 'string', description: 'Dataset da esplorare (opzionale).' },
+        table: { type: 'string', description: 'Tabella di cui vedere le colonne (opzionale, richiede dataset).' },
+      },
+      required: ['cliente'],
+    },
+    handler: bqSchema,
+  },
+  {
+    name: 'bq_query',
+    description:
+      'Esegue una query SQL standard in sola lettura (una sola SELECT/WITH) sul BigQuery di un cliente, dalla VPS col service account Asernet. Il costo va al progetto del cliente. Rifiuta query su dataset non ammessi in config.yaml, query che leggerebbero oltre 10 GB (stima a costo zero prima di eseguire) e query che uniscono dataset di location diverse (vedi bq_schema: in quel caso fai query separate e confronta i risultati). Su GA4 filtra sempre _TABLE_SUFFIX e seleziona solo le colonne necessarie. Max 1000 righe, 60 s. Ogni query è registrata sulla VPS con l\'utente.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        cliente: { type: 'string', description: 'Slug del cliente (clients/<slug>/), es. "shopincasa".' },
+        sql: { type: 'string', description: 'Query SQL standard con nomi completi `progetto.dataset.tabella`.' },
+        max_rows: { type: 'number', description: 'Righe da restituire (default e massimo 1000).' },
+      },
+      required: ['cliente', 'sql'],
+    },
+    handler: bqQuery,
+  },
 ];
 
 function send(msg) {
@@ -1308,7 +1378,7 @@ function handle(req) {
       result: {
         protocolVersion: (params && params.protocolVersion) || '2024-11-05',
         capabilities: { tools: {}, prompts: {} },
-        serverInfo: { name: 'vault-asernet', version: '1.3.0' },
+        serverInfo: { name: 'vault-asernet', version: '1.4.0' },
       },
     });
   }

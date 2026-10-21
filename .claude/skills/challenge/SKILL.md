@@ -1,4 +1,5 @@
 ---
+name: challenge
 description: "Gate epistemologico (Cognitos Sum + Cognitive Core + OIDA): red-team costituzionale di una diagnosi, decisione o tesi prima di agirci. Separa fatti provati da assunzioni, decostruisce i bias, calcola i Coherence Flags e apre QUESTION a decadimento inverso."
 argument-hint: "La tesi/diagnosi/decisione da sfidare (opzionale: usa l'ultimo output AserMind)"
 ---
@@ -62,3 +63,4 @@ Emetti il **Verdetto**:
    - Registra il verdetto in `clients/<slug>/purpose.md` (se riguarda un cliente) indicando se `supersedes` una decisione precedente;
    - Trasforma ogni `evidence_missing` critica in una riga **`QUESTION` a decadimento inverso (`status: open`)** nella tabella `## ❓ 1. Questioni Aperte` di `clients/<slug>/purpose.md` (o `wiki/questions.md`);
    - Se il verdetto è 🔴 o 🟡, passa il segnale alla skill `client-learn` per valutare se catturare la lezione.
+

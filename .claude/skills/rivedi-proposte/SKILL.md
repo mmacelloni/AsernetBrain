@@ -1,4 +1,5 @@
 ---
+name: rivedi-proposte
 description: "Rivede la coda dei contributi che contraddicono quello che l'AsernetBrain già sa (contesto o lezioni): per ognuno decidi se promuoverlo nelle lezioni, rifiutarlo o riformularlo. Per il curatore."
 argument-hint: "Nessuno"
 ---
@@ -26,3 +27,4 @@ pendenti. Se l'utente usa InfraOS, suggerisci `/commit`.
   curatore, con conferma esplicita, mai automatica.
 - Nessuna proposta viene mai cancellata: cambia solo `stato:`. Il file è la
   traccia di cosa è stato proposto e come è finita.
+

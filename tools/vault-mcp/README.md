@@ -28,6 +28,30 @@ fiducia. Vedi §12 della costituzione.
 | `vault_publish` | sì | Verifica L ∩ R, poi commit + merge + push dei soli path passati |
 | `vault_unlock` | sì | Mette da parte un `.git/index.lock` abbandonato, solo con conferma |
 | `vault_stash_list` | no | Elenca gli stash e il loro contenuto, tracciato e non |
+| `bq_schema` | no | Dataset ammessi, tabelle (shard giornalieri raggruppati) o colonne del BigQuery di un cliente |
+| `bq_query` | no | Una query `SELECT`/`WITH` in sola lettura sul BigQuery di un cliente |
+
+### `bq_query` e `bq_schema`
+
+Non girano sul PC: il server apre `ssh <host di origin> asernet-bq` con la stessa chiave del
+repository e passa la richiesta in JSON su stdin. Sulla VPS la shell di login di `git`
+(`/usr/local/bin/asernet-git-shell`, e allineato `asernet-git-guard`) accetta **solo** il comando
+esatto `asernet-bq` e lancia [`vps/asernet-bq`](vps/asernet-bq) con l'utente ricavato dalla chiave.
+
+Tutti i controlli stanno sulla VPS, perché il client non è fidato:
+- progetto e dataset ammessi da `clients/<slug>/connectors/config.yaml` su `main` (sorgente
+  `type: bigquery`, `enabled: true`, `auth: service_account`);
+- utenti ammessi dallo stesso file (`bq_users`); elenco assente o vuoto = nessuno;
+- una sola `SELECT`/`WITH`; dry run gratuito prima di eseguire: rifiuto se tocca tabelle fuori
+  dai dataset ammessi o se leggerebbe più di **10 GB**; poi `maximumBytesBilled`, 60 s, 1000 righe;
+- `statementType` del dry run deve essere `SELECT`; query che uniscono dataset di location diverse
+  rifiutate in chiaro (BigQuery le boccerebbe con un "Access Denied" fuorviante);
+- chiave del service account in `/srv/secrets/bigquery/asernetbrain-bq.json`;
+- log JSONL in `/var/log/asernet-bq/queries.log` (utente, cliente, SQL, GB, esito; anche i rifiuti).
+
+Reinstallare lo script: `scp vps/asernet-bq asernet-admin:/tmp/` poi
+`sudo install -o root -g root -m 755 /tmp/asernet-bq /usr/local/bin/asernet-bq`.
+Procedura completa per collegare un cliente: `wiki/concepts/sop-bigquery-service-account-cliente.md`.
 
 ### La guardia di `vault_sync`
 

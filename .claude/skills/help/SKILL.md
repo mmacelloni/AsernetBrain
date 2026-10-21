@@ -1,4 +1,5 @@
 ---
+name: help
 description: "Aiuto e orientamento sul plugin AsernetBrain: cosa fa, i 5 livelli, tutti i comandi, e come approfondire con la guida dettagliata. Accetta un argomento per andare dritto a un tema (es. /help dati)."
 argument-hint: "Tema su cui vuoi aiuto (opzionale): installazione, contesto, dati, intelligence, automazioni, dashboard, asermind, challenge, giornata"
 ---
@@ -76,3 +77,4 @@ della guida.
 ## Regole
 - Italiano, tono cordiale e concreto. Niente gergo tecnico non spiegato.
 - Non eseguire azioni di costruzione: questo è solo un comando di aiuto.
+

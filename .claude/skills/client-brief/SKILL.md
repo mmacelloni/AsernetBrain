@@ -1,4 +1,5 @@
 ---
+name: client-brief
 description: "Brief di intelligence prima di una call con un cliente: timeline, promesse vs consegne, pendenze, ultima conversazione e 3 punti d'agenda. Riusa contesto + riunioni + dati dell'AsernetBrain."
 argument-hint: "Nome del cliente su cui preparare il brief"
 ---
@@ -51,3 +52,4 @@ l'ultima volta e cosa era rimasto in sospeso.
 - Ogni affermazione deve poggiare su un dato trovato: se inferisci, marcalo come ipotesi (regola anti-*Appearance of Knowing*, Baum). Mai inventare fatti su un cliente reale.
 - Brevità: il consulente lo legge in 5 minuti prima di entrare in call.
 - Non proporre strategie elaborate: il brief orienta, non decide. Per stressare una decisione strategica ad alto impatto, rimanda a `/challenge` (Cognitos Sum).
+

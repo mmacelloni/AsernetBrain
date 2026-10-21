@@ -13,7 +13,8 @@ Questo file governa **AsernetBrain**, il brain aziendale multi-utente che unisce
 AsernetBrain/
 ├── CLAUDE.md                   # Costituzione e regole operative globali
 ├── _meta/
-│   └── authors.md              # Registro utenti aziendali e permessi/ruoli
+│   ├── authors.md              # Registro utenti aziendali e permessi/ruoli
+│   └── notifiche.md            # Notifiche tra colleghi (cancellate alla lettura)
 ├── raw/                        # Inbox fonti grezze (immutabili in lettura)
 │   └── clients/<slug>/         # Documenti grezzi specifici per cliente
 ├── wiki/                       # ZONA GOVERNATA (OKF) — Knowledge Base aziendale
@@ -103,6 +104,7 @@ Vedi la specifica completa in [`wiki/concepts/architettura-epistemica-asernetbra
   1. Identifica l'utente attivo (da configurazione locale o `_meta/authors.md`).
   2. Esegue sempre `git pull --ff-only` (direttamente o tramite `vault-mcp`).
   3. Se il pull fallisce per history divergente: **fermarsi e segnalare immediatamente**. Vietati `push --force`, `reset --hard` o `rebase` ciechi.
+  4. Legge `_meta/notifiche.md` e mostra subito all'utente le notifiche indirizzate al suo `id` (anche se non ha lanciato `/prime`), poi le cancella dal file aggiornando `last_read_by`/`last_read` nel frontmatter.
 - **Fine operazione / sessione (`/commit` o `/pubblica`):**
   1. `git status` per verificare i file toccati.
   2. Commit con formato: `YYYY-MM-DD | <utente> | <ambito> | <titolo>` e `git push`.
